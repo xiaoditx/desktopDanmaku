@@ -4,6 +4,7 @@
         "GWLP_USERDATA",
         "HFONT",
         "ICONERROR",
+        "keybonk",
         "lpszMenuName",
         "PCWSTR",
         "WM_NCCREATE"
