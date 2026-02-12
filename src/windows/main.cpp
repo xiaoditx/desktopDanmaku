@@ -72,44 +72,4 @@ namespace danmaku
             return DefWindowProc(hwnd, uMsg, wParam, lParam);
         }
     }
-
-    mainWindow &mainWindow::createElements(elementInfo &elements)
-    {
-        return createElements(&elements, 1);
-    }
-    mainWindow &mainWindow::createElements(elementInfo *elements, int count)
-    {
-        for (int forCounter = 0; forCounter < count; ++forCounter)
-        {
-            elementInfo &elem = elements[forCounter];
-            bool needFont = false;
-            switch (elem.type)
-            {
-            case elements::button:
-                needFont = true;
-                elem.hwnd = CreateWindow(L"BUTTON", elem.text.c_str(), WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-                                         elem.x, elem.y, elem.width, elem.height, hwnd, nullptr, GetModuleHandle(nullptr), nullptr);
-                break;
-            case elements::edit:
-                needFont = true;
-                elem.hwnd = CreateWindow(L"EDIT", elem.text.c_str(), WS_TABSTOP | WS_VISIBLE | WS_CHILD | ES_LEFT,
-                                         elem.x, elem.y, elem.width, elem.height, hwnd, nullptr, GetModuleHandle(nullptr), nullptr);
-                break;
-            case elements::label:
-                needFont = true;
-                elem.hwnd = CreateWindow(L"STATIC", elem.text.c_str(), WS_VISIBLE | WS_CHILD | SS_LEFT,
-                                         elem.x, elem.y, elem.width, elem.height, hwnd, nullptr, GetModuleHandle(nullptr), nullptr);
-                break;
-            default:
-                MessageBox(hwnd, L"（0003）主窗口：尝试创建未知的元素类型", L"出错了欸", MB_ICONERROR | MB_OK);
-                break;
-            }
-            if (needFont && elem.elementFont)
-            {
-                SendMessage(elem.hwnd, WM_SETFONT, reinterpret_cast<WPARAM>(elem.elementFont), TRUE);
-            }
-        }
-        return *this;
-    }
-
 } // namespace danmaku

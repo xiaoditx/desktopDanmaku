@@ -30,19 +30,6 @@ namespace danmaku
         mainWindow &create(std::wstring title, int width, int height);
         // 显示窗口
         mainWindow &show();
-        /**
-         * @brief 创建窗口元素的函数，接受一个元素信息结构体
-         * @param[in,out] elements 一个元素信息结构体，包含元素类型、位置、大小、文本和额外信息
-         * @return 返回主窗口对象的引用，以支持链式调用
-         */
-        mainWindow &createElements(elementInfo &elements);
-        /**
-         * @brief 创建窗口元素的函数，接受一个元素信息结构体数组和元素数量
-         * @param[in,out] elements 一个元素信息结构体数组的首项指针，包含多个元素的信息
-         * @param[in] count 元素信息数组成员数量
-         * @return 返回主窗口对象的引用，以支持链式调用
-         */
-        mainWindow &createElements(elementInfo *elements, int count);
     };
 }
 

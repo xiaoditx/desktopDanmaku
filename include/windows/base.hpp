@@ -58,6 +58,7 @@ namespace danmaku
                 return DefWindowProc(hwnd, msg, wParam, lParam);
             }
         }
+        HWND getHandle() const { return hwnd; }
     };
 }
 
