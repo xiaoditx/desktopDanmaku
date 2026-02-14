@@ -32,7 +32,7 @@ OBJ_DIR   := $(BUILD_DIR)/obj
 BIN       := $(BUILD_DIR)/danmaku.exe
 
 # 源文件列表 
-CXX_SRCS := $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(SRC_DIR)/windows/*.cpp)
+CXX_SRCS := $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(SRC_DIR)/windows/*.cpp) $(wildcard $(SRC_DIR)/functions/*.cpp)
 #$(wildcard $(SRC_DIR)/.../*.cpp)
 
 # 自动推导对象 

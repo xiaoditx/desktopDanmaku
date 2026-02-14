@@ -60,6 +60,20 @@ namespace danmaku
         return *this;
     }
 
+    inline HRESULT transferToElement(UINT uMsg, WPARAM wParam, LPARAM lParam)
+    {
+        try
+        {
+            HWND hWndCtrl = (HWND)lParam;
+            UINT_PTR nCtrlID = GetDlgCtrlID(hWndCtrl);
+            return searchID(nCtrlID).procMessage(uMsg, wParam, lParam);
+        }
+        catch (const std::exception &e)
+        {
+            return S_FALSE;
+        }
+    }
+
     // 主窗口的消息处理函数
     LRESULT mainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
@@ -68,6 +82,10 @@ namespace danmaku
         case WM_DESTROY:
             PostQuitMessage(0);
             return 0;
+        case WM_CTLCOLORSTATIC:
+            debug::logOutput(L"Color static消息\n");
+            return transferToElement(uMsg, wParam, lParam);
+
         default:
             return DefWindowProc(hwnd, uMsg, wParam, lParam);
         }
