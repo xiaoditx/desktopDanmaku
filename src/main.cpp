@@ -33,6 +33,7 @@ danmaku::labelExtraInfo lei{
 // 全局 optional 变量
 std::optional<danmaku::element> g_elemLabelAppName;
 std::optional<danmaku::element> g_elemLabelPrompt;
+std::optional<danmaku::element> g_elemEditContent;
 std::optional<danmaku::element> g_elemButton;
 
 void init_creatElement(danmaku::baseWindow &mainWND)
@@ -50,16 +51,25 @@ void init_creatElement(danmaku::baseWindow &mainWND)
     g_elemLabelPrompt.emplace(
         mainWND.getHandle(),
         danmaku::elementType::label,
-        danmaku::rect{5, 30, 100, 25},
+        danmaku::rect{5, 40, 100, 28},
         L"内容：",
         defaultFont,
         &lei);
+
+    // 输入框
+    g_elemEditContent.emplace(
+        mainWND.getHandle(),
+        danmaku::elementType::edit,
+        danmaku::rect{60, 40, 300, 28},
+        L"",
+        defaultFont,
+        nullptr);
 
     // 发送按钮
     g_elemButton.emplace(
         mainWND.getHandle(),
         danmaku::elementType::button,
-        danmaku::rect{5, 60, 100, 25},
+        danmaku::rect{370, 40, 100, 28},
         L"发送弹幕",
         defaultFont,
         nullptr);
@@ -68,5 +78,6 @@ void init_creatElement(danmaku::baseWindow &mainWND)
     danmaku::createElements(
         g_elemLabelAppName.value(),
         g_elemLabelPrompt.value(),
+        g_elemEditContent.value(),
         g_elemButton.value());
 }
