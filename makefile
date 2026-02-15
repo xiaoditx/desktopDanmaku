@@ -21,7 +21,7 @@ endif
 # 基本变量 
 CXXFLAGS = -std=c++17 -Wall -Wextra -Wpedantic -O2 -DUNICODE -D_UNICODE
 LDFLAGS  = -mwindows -municode
-LDLIBS   = -luser32 -lgdi32
+LDLIBS   = -luser32 -lgdi32 -lcomctl32
 
 # 目录变量
 SRC_DIR   := src
@@ -44,9 +44,13 @@ all: $(BIN)
 	@echo 调试版本构建完成: $@
 
 # 链接 
-$(BIN): $(CXX_OBJS)
+$(BIN): $(CXX_OBJS) $(OBJ_DIR)/manifest.o
 	@echo 正在链接生成可执行文件 $@ ...
 	@$(CXX) $(LDFLAGS) $^ -o $@ $(LDLIBS)
+
+$(OBJ_DIR)/manifest.o: src/list.rc
+	@echo 正在编译资源文件 $< ...
+	@windres -o $@ $<
 
 # 编译对象文件 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)

@@ -3,9 +3,13 @@
         "danmaku",
         "GWLP_USERDATA",
         "HFONT",
+        "iccex",
         "ICONERROR",
+        "INITCOMMONCONTROLSEX",
         "keybonk",
+        "lcomctl32",
         "lpszMenuName",
+        "mainfest",
         "PCWSTR",
         "WM_NCCREATE"
     ],
