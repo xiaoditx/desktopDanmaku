@@ -1,6 +1,8 @@
 # 设置代码页为UTF-8以支持中文路径和输出
 $(shell chcp 65001 >nul)
 
+DEBUG ?= 1
+
 # 编译架构选择，默认64位
 ARCH ?= 64
 
@@ -18,21 +20,29 @@ WINDRES  = windres
 WINDRES_FLAG = -F pe-x86-64 -o
 endif
 
+ifeq ($(DEBUG), 1)
+    CONFIG    := debug
+    EXTRA_FLAGS := -O0 -g -D_DEBUG
+else
+    CONFIG    := release
+    EXTRA_FLAGS := -O3 -s -DNDEBUG
+endif
+
 # 基本变量 
-CXXFLAGS = -std=c++17 -Wall -Wextra -Wpedantic -O2 -DUNICODE -D_UNICODE
+CXXFLAGS = -std=c++17 -Wall -Wextra -Wpedantic $(EXTRA_FLAGS) -DUNICODE -D_UNICODE
 LDFLAGS  = -mwindows -municode
-LDLIBS   = -luser32 -lgdi32 -lcomctl32
+LDLIBS   = -luser32 -lgdi32 -lcomctl32 -lgdiplus
 
 # 目录变量
 SRC_DIR   := src
 INC_DIR   := include
 BUILD_BASE:= build
-BUILD_DIR := $(BUILD_BASE)/$(ARCH)
+BUILD_DIR := $(BUILD_BASE)/$(ARCH)/$(CONFIG)
 OBJ_DIR   := $(BUILD_DIR)/obj
 BIN       := $(BUILD_DIR)/danmaku.exe
 
 # 源文件列表 
-CXX_SRCS := $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(SRC_DIR)/windows/*.cpp) $(wildcard $(SRC_DIR)/functions/*.cpp)
+CXX_SRCS := $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(SRC_DIR)/windows/*.cpp) $(wildcard $(SRC_DIR)/functions/*.cpp) $(wildcard $(SRC_DIR)/danmaku/*.cpp)
 #$(wildcard $(SRC_DIR)/.../*.cpp)
 
 # 自动推导对象 
@@ -41,7 +51,10 @@ CXX_OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(CXX_SRCS))
 # 默认目标（64位debug模式）
 .PHONY: all clean help run release release64 release32 installer installer64 installer32
 all: $(BIN)
-	@echo 调试版本构建完成: $@
+	@echo $(CONFIG)版本构建完成: $@
+
+debug:
+	@$(MAKE) DEBUG=1 all
 
 # 链接 
 $(BIN): $(CXX_OBJS) $(OBJ_DIR)/manifest.o
@@ -56,7 +69,7 @@ $(OBJ_DIR)/manifest.o: src/list.rc
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
 	@echo 正在将源码文件 $< 编译到 $@
 	@if not exist "$(dir $@)" mkdir "$(dir $@)"
-	@$(CXX) $(CXXFLAGS) -I$(INC_DIR) -MMD -MP -c $< -o $@
+	@$(CXX) $(CXXFLAGS) -g -I$(INC_DIR) -MMD -MP -c $< -o $@
 
 # 自动依赖 
 -include $(CXX_OBJS:.o=.d)
@@ -88,12 +101,12 @@ release: clean release64 release32
 # 发布版64位构建
 release64:
 	@echo 正在构建64位发布版本 ...
-	@$(MAKE) ARCH=64 all
+	@$(MAKE) ARCH=64 DEBUG=0 all
 
 # 发布版32位构建
 release32:
 	@echo 正在构建32位发布版本 ...
-	@$(MAKE) ARCH=32 all
+	@$(MAKE) ARCH=32 DEBUG=0 all
 
 # 构建安装包（64+32）
 installer: clean release64 installer64 release32 installer32

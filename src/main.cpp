@@ -6,8 +6,12 @@
 #include <commctrl.h>
 #include "main.hpp"
 #include <optional>
+#include <gdiplus.h>
 
 void init_creatElement(danmaku::baseWindow &mainWND);
+
+ULONG_PTR g_gpToken{};
+
 int WINAPI wWinMain([[maybe_unused]] HINSTANCE hInstance, [[maybe_unused]] HINSTANCE hPrevInstance,
                     [[maybe_unused]] PWSTR pCmdLine, [[maybe_unused]] int nCmdShow)
 {
@@ -24,19 +28,33 @@ int WINAPI wWinMain([[maybe_unused]] HINSTANCE hInstance, [[maybe_unused]] HINST
         return 1;
     }
 
-    // 主窗口
-    danmaku::mainWindow mainWindowObj;
-    mainWindowObj.create(L"桌面弹幕", 500, 300).show();
-
-    // 初始化元素
-    init_creatElement(mainWindowObj);
-
-    MSG msg;
-    while (GetMessage(&msg, nullptr, 0, 0))
+    Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+    if (Gdiplus::GdiplusStartup(
+            &g_gpToken,
+            &gdiplusStartupInput,
+            nullptr) != Gdiplus::Ok)
     {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
+        MessageBox(NULL, L"初始化 GDI+ 失败", L"错误", MB_OK);
+        return 1;
     }
+
+    // 主窗口
+    MSG msg;
+    {
+        danmaku::mainWindow mainWindowObj;
+        mainWindowObj.create(L"桌面弹幕", 500, 300).show();
+
+        // 初始化元素
+        init_creatElement(mainWindowObj);
+
+        while (GetMessage(&msg, nullptr, 0, 0))
+        {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+    }// GDI+关闭前析构
+
+    Gdiplus::GdiplusShutdown(g_gpToken);
 
     return static_cast<int>(msg.wParam);
 }

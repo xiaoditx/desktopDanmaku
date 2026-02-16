@@ -3,8 +3,7 @@
 
 #include <windows.h>
 #include <string>
-#include "windows/base.hpp"
-#include "windows/elements.hpp"
+#include "overlay.hpp"
 
 namespace danmaku
 {
@@ -15,7 +14,7 @@ namespace danmaku
     private:
         // dm: danmaku main
         WNDCLASSEX dm_wc{};
-
+        overlayWindow overlay{};
     public:
         PCWSTR ClassName() const override { return dm_wc.lpszClassName; }
         // 处理窗口消息

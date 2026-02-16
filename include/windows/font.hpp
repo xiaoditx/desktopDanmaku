@@ -15,18 +15,25 @@ namespace danmaku
              bool bold = false, bool italic = false,
              bool underline = false, bool strikeout = false)
         {
-            hFont = CreateFontW(
-                fontSize, 0, 0, 0,
-                bold ? FW_BOLD : FW_NORMAL,
-                italic ? TRUE : FALSE,
-                underline ? TRUE : FALSE,
-                strikeout ? TRUE : FALSE,
-                DEFAULT_CHARSET,
-                OUT_DEFAULT_PRECIS,
-                CLIP_DEFAULT_PRECIS,
-                DEFAULT_QUALITY,
-                DEFAULT_PITCH | FF_DONTCARE,
-                fontName);
+            create(fontName, fontSize, bold, italic, underline, strikeout);
+        }
+        
+        HFONT create(const wchar_t *fontName, int fontSize,
+                     bool bold = false, bool italic = false,
+                     bool underline = false, bool strikeout = false)
+        {
+            return hFont = CreateFontW(
+                       fontSize, 0, 0, 0,
+                       bold ? FW_BOLD : FW_NORMAL,
+                       italic ? TRUE : FALSE,
+                       underline ? TRUE : FALSE,
+                       strikeout ? TRUE : FALSE,
+                       DEFAULT_CHARSET,
+                       OUT_DEFAULT_PRECIS,
+                       CLIP_DEFAULT_PRECIS,
+                       DEFAULT_QUALITY,
+                       DEFAULT_PITCH | FF_DONTCARE,
+                       fontName);
         }
         operator HFONT() const { return hFont; }  // 提供隐式转换为 HFONT 类型的操作符，方便在需要字体句柄的地方直接使用 font 对象
         HFONT getHandle() const { return hFont; } // 提供获取字体句柄的成员函数，返回当前字体对象的句柄

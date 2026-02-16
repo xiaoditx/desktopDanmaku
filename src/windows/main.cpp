@@ -22,10 +22,10 @@ namespace danmaku
         dm_wc.cbWndExtra = 0;
         dm_wc.hInstance = GetModuleHandle(nullptr);
         // dm_wc.hIcon = nullptr;//
-        // dm_wc.hCursor = LoadCursor(nullptr, IDC_ARROW);//
+        dm_wc.hCursor = LoadCursorW(nullptr, IDC_ARROW);
         dm_wc.hbrBackground = reinterpret_cast<HBRUSH>(GetStockObject(WHITE_BRUSH));
         dm_wc.lpszMenuName = nullptr;
-        dm_wc.lpszClassName = L"DanmakuMainWindowClass";
+        dm_wc.lpszClassName = L"Danmaku.WndCls.Main";
         // dm_wc.hIconSm = nullptr;//
 
         if (!RegisterClassEx(&dm_wc))
@@ -53,6 +53,9 @@ namespace danmaku
             debug::logWinError(GetLastError());
             MessageBox(nullptr, L"（0002）主窗口：创建窗口失败", L"出错了欸", MB_ICONERROR | MB_OK);
         }
+
+        overlay.create();
+
         return *this;
     }
 
