@@ -36,23 +36,25 @@ V 0.0.0.0 开发中
 
 ### （计划的）功能
 
-- 在桌面上显示弹幕
-- 支持从json文件导入弹幕内容
-- 支持自定义弹幕透明度
+- [x] 在桌面上显示弹幕
+- [ ] 支持从json文件导入弹幕内容
+- [ ] 支持自定义弹幕透明度
 
 ### 构建方式
 
-使用下面的命令编译标准软件
+使用下面的命令编译DEBUG版软件
 
 ```batch
 make
 ```
 
-使用下面的命令编译32位
+使用下面的命令编译DEBUG版32位软件
 
 ```batch
 make ARCH=32
 ```
+
+其他操作请在项目根目录下使用`make help查看`
 
 makefile从[keybonk项目](https://github.com/xiaoditx/keybonk)中移植而来，可能会有无用的目标，最好不要使用因为未经测试
 
@@ -64,6 +66,7 @@ makefile从[keybonk项目](https://github.com/xiaoditx/keybonk)中移植而来�
 
 - win32
 - C++17
+- GDI+
 
 开发环境
 
@@ -74,7 +77,7 @@ makefile从[keybonk项目](https://github.com/xiaoditx/keybonk)中移植而来�
 
 ## 贡献者
 
-感谢社区的贡献者们（其实现在并没有）
+感谢社区的贡献者们
 
 <a href="https://github.com/xiaoditx/DesktopDanmaku/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=xiaoditx/DesktopDanmaku" />
