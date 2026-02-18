@@ -34,7 +34,7 @@ int WINAPI wWinMain([[maybe_unused]] HINSTANCE hInstance, [[maybe_unused]] HINST
     if (!InitCommonControlsEx(&iccex))
     {
         // 处理错误（通常不会失败）
-        MessageBox(NULL, L"初始化通用控件失败", L"错误", MB_OK);
+        MessageBoxW(nullptr, L"初始化通用控件失败", L"错误", MB_OK);
         return 1;
     }
 
@@ -44,7 +44,7 @@ int WINAPI wWinMain([[maybe_unused]] HINSTANCE hInstance, [[maybe_unused]] HINST
             &gdiplusStartupInput,
             nullptr) != Gdiplus::Ok)
     {
-        MessageBox(NULL, L"初始化 GDI+ 失败", L"错误", MB_OK);
+        MessageBoxW(nullptr, L"初始化 GDI+ 失败", L"错误", MB_OK);
         return 1;
     }
 
@@ -60,16 +60,16 @@ int WINAPI wWinMain([[maybe_unused]] HINSTANCE hInstance, [[maybe_unused]] HINST
         // 初始化元素
         init_creatElement(mainWindowObj);
 
-        while (GetMessage(&msg, nullptr, 0, 0))
+        while (GetMessageW(&msg, nullptr, 0, 0))
         {
             TranslateMessage(&msg);
-            DispatchMessage(&msg);
+            DispatchMessageW(&msg);
         }
     } // GDI+关闭前析构
 
     Gdiplus::GdiplusShutdown(g_gpToken);
 
-    return static_cast<int>(msg.wParam);
+    return (int)msg.wParam;
 }
 
 // 默认字体对象，微软雅黑字体，大小为24
@@ -136,11 +136,11 @@ void buttonClickHandler()
 {
     // 获取输入框内容
     wchar_t szBuffer[256]{};
-    GetDlgItemText(g_elemEditContent->getParentHwnd(), g_elemEditContent->getID(), szBuffer, 256);
+    GetDlgItemTextW(g_elemEditContent->getParentHwnd(), g_elemEditContent->getID(), szBuffer, 256);
     std::wstring content = szBuffer;
     if (content.empty())
     {
-        MessageBox(NULL, L"请输入弹幕内容！", L"提示", MB_OK);
+        MessageBoxW(nullptr, L"请输入弹幕内容！", L"提示", MB_OK);
         return;
     }
 
@@ -152,5 +152,5 @@ void buttonClickHandler()
     }
 
     // 发送后清空输入框
-    SetDlgItemText(g_elemEditContent->getParentHwnd(), g_elemEditContent->getID(), L"");
+    //SetDlgItemTextW(g_elemEditContent->getParentHwnd(), g_elemEditContent->getID(), L"");
 }

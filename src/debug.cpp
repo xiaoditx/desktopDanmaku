@@ -20,8 +20,8 @@ namespace debug
         LPWSTR messageBuffer = nullptr;
         FormatMessageW(
             FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-            NULL, errorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-            (LPWSTR)&messageBuffer, 0, NULL);
+            nullptr, errorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+            (LPWSTR)&messageBuffer, 0, nullptr);
         logOutput(L"    - 错误代码：", std::to_wstring(errorCode).c_str(), L"\n    - 错误信息：", messageBuffer, L"\n");
         LocalFree(messageBuffer);
     }

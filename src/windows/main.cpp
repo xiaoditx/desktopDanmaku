@@ -14,44 +14,43 @@ namespace danmaku
     mainWindow &mainWindow::create(std::wstring title, int width, int height)
     {
         // 注册窗口类
-        // ZeroMemory(&dm_wc, sizeof(WNDCLASSEX));//
         dm_wc.cbSize = sizeof(WNDCLASSEX);
         dm_wc.style = CS_HREDRAW | CS_VREDRAW;
-        dm_wc.lpfnWndProc = baseWindow::wndProc<mainWindow>;
+        dm_wc.lpfnWndProc = baseWindow::wndProc;
         dm_wc.cbClsExtra = 0;
         dm_wc.cbWndExtra = 0;
         dm_wc.hInstance = GetModuleHandle(nullptr);
         // dm_wc.hIcon = nullptr;//
         dm_wc.hCursor = LoadCursorW(nullptr, IDC_ARROW);
-        dm_wc.hbrBackground = reinterpret_cast<HBRUSH>(GetStockObject(WHITE_BRUSH));
+        dm_wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
         dm_wc.lpszMenuName = nullptr;
         dm_wc.lpszClassName = L"Danmaku.WndCls.Main";
         // dm_wc.hIconSm = nullptr;//
 
-        if (!RegisterClassEx(&dm_wc))
+        if (!RegisterClassExW(&dm_wc))
         {
             debug::logOutput(L"[错误] 主窗口类注册错误\n");
             debug::logWinError(GetLastError());
-            MessageBox(nullptr, L"（0001）主窗口：窗口类注册失败", L"出错了欸", MB_ICONERROR | MB_OK);
+            MessageBoxW(nullptr, L"（0001）主窗口：窗口类注册失败", L"出错了欸", MB_ICONERROR | MB_OK);
             return *this;
         }
 
         // 创建窗口
-        hwnd = CreateWindowEx(
+        hwnd = CreateWindowExW(
             0, dm_wc.lpszClassName, title.c_str(),
             // 禁止调整窗口大小和最大化
             WS_OVERLAPPEDWINDOW & ~(WS_THICKFRAME | WS_MAXIMIZEBOX),
             // 使用默认位置，指定宽高
             CW_USEDEFAULT, CW_USEDEFAULT, width, height,
             // 父窗口和菜单都设为 nullptr，使用当前实例句柄，传递 this 指针以供消息处理使用
-            nullptr, nullptr, GetModuleHandle(nullptr), this);
+            nullptr, nullptr, GetModuleHandleW(nullptr), this);
 
         // 检查窗口创建是否成功
         if (!hwnd)
         {
             debug::logOutput(L"[错误] 主窗口创建失败\n");
             debug::logWinError(GetLastError());
-            MessageBox(nullptr, L"（0002）主窗口：创建窗口失败", L"出错了欸", MB_ICONERROR | MB_OK);
+            MessageBoxW(nullptr, L"（0002）主窗口：创建窗口失败", L"出错了欸", MB_ICONERROR | MB_OK);
         }
 
         overlay.create().show();
@@ -80,7 +79,7 @@ namespace danmaku
     }
 
     // 主窗口的消息处理函数
-    LRESULT mainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
+    LRESULT mainWindow::handleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         switch (uMsg)
         {
@@ -104,11 +103,11 @@ namespace danmaku
                 int wmId = LOWORD(wParam);
                 return transferToElement(wmId, uMsg, wParam, lParam);
             }
-            return DefWindowProc(hwnd, uMsg, wParam, lParam);
+            return DefWindowProcW(hwnd, uMsg, wParam, lParam);
         }
 
         default:
-            return DefWindowProc(hwnd, uMsg, wParam, lParam);
+            return DefWindowProcW(hwnd, uMsg, wParam, lParam);
         }
     }
 } // namespace danmaku

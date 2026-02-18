@@ -16,9 +16,9 @@ namespace danmaku
         WNDCLASSEX dm_wc{};
         overlayWindow overlay{};
     public:
-        PCWSTR ClassName() const override { return dm_wc.lpszClassName; }
+        PCWSTR className() const override { return dm_wc.lpszClassName; }
         // 处理窗口消息
-        LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) override;
+        LRESULT handleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) override;
         // 构造函数和析构函数
         mainWindow() = default;
         // 使用默认析构函数
