@@ -79,8 +79,8 @@ makefile从[keybonk项目](https://github.com/xiaoditx/keybonk)中移植而来�
 
 感谢社区的贡献者们
 
-<a href="https://github.com/xiaoditx/DesktopDanmaku/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=xiaoditx/DesktopDanmaku" />
+<a href="https://github.com/xiaoditx/desktopdanmaku/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=xiaoditx/desktopdanmaku" />
 </a>
 
 ## 项目统计
