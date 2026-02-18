@@ -18,6 +18,7 @@
         "PARGB",
         "PCWSTR",
         "PixelFormat32bppPARGB",
+        "randnum",
         "ulwi",
         "UPDATELAYEREDWINDOWINFO",
         "WM_NCCREATE",

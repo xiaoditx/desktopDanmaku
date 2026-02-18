@@ -1,0 +1,43 @@
+DesktopDanmaku Makefile 帮助
+
+基本用法:
+  make [目标] [选项]
+
+构建目标:
+  all (默认)   - 构建 DEBUG 版本（64位）
+  debug        - 构建 DEBUG 版本（64位）
+  run          - 构建并运行程序（默认 64位）
+  clean        - 清理所有构建文件
+  help         - 显示此帮助信息
+
+发布版本目标:
+  release      - 清理并构建所有发布版本（64位和32位）
+  release64    - 构建 64位发布版本
+  release32    - 构建 32位发布版本
+
+安装包目标:
+  installer    - 清理并构建所有安装包（64位和32位）
+  installer64  - 构建 64位安装包
+  installer32  - 构建 32位安装包
+
+构建选项:
+  ARCH=32      - 构建 32位版本
+  ARCH=64      - 构建 64位版本（默认）
+  DEBUG=1      - 构建 DEBUG 版本（默认）
+  DEBUG=0      - 构建 RELEASE 版本
+
+构建示例:
+  make            - 构建 64位 DEBUG 版本
+  make ARCH=32    - 构建 32位 DEBUG 版本
+  make DEBUG=0    - 构建 64位 RELEASE 版本
+  make run        - 构建并运行程序
+
+构建目录结构:
+  build/64/debug/     - 64位 DEBUG 版本
+  build/32/debug/     - 32位 DEBUG 版本
+  build/64/release/   - 64位 RELEASE 版本
+  build/32/release/   - 32位 RELEASE 版本
+
+注意:
+  - 安装包构建需要 Inno Setup 工具
+  - 本项目使用 UTF-8 编码
