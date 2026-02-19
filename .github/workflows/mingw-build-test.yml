@@ -1,0 +1,116 @@
+name: MinGW Build Test (4 Configurations)
+
+on:
+  # 触发条件1：任何PR提交时触发
+  pull_request:
+    branches: [ '**' ] # 可改为指定分支，如 [ main, master ]
+  # 触发条件2：支持手动触发
+  workflow_dispatch:
+
+jobs:
+  build-test:
+    runs-on: windows-latest # 固定Windows环境
+    # 矩阵策略：覆盖4种编译组合，关闭快速失败（确保所有组合都跑完）
+    strategy:
+      fail-fast: false
+      matrix:
+        DEBUG: [ 0, 1 ]
+        ARCH: [ 32, 64 ]
+
+    steps:
+      # 步骤1：拉取仓库代码
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      # 步骤2：安装ezwinports版本的make 4.4.1（通过winget）
+      - name: Install make 4.4.1 (ezwinports)
+        run: |
+          # 静默安装，自动接受许可协议，避免CI交互阻塞
+          winget install --id ezwinports.make --version 4.4.1 --force `
+            --accept-package-agreements --accept-source-agreements
+          # 自动获取make安装路径，添加到系统PATH（优先级别）
+          # 使用更可靠的方法获取安装路径
+          $wingetOutput = winget show ezwinports.make 2>&1 | Out-String
+          Write-Host "Winget show output: $wingetOutput"
+          
+          # 尝试从输出中提取安装路径
+          # 方法1：使用默认安装路径（如果winget show失败）
+          $defaultInstallPath = "C:\Program Files (x86)\GnuWin32"
+          $makeBinPath = Join-Path -Path $defaultInstallPath -ChildPath "bin"
+          
+          # 验证路径是否存在
+          if (Test-Path $makeBinPath) {
+              Write-Host "Using default make path: $makeBinPath"
+              echo $makeBinPath | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+              Write-Host "Successfully added make path: $makeBinPath"
+          } else {
+              # 方法2：使用winget的安装位置
+              $installLocation = "C:\Program Files (x86)\ezwinports"
+              $makeBinPath = Join-Path -Path $installLocation -ChildPath "bin"
+              
+              if (Test-Path $makeBinPath) {
+                  Write-Host "Using ezwinports make path: $makeBinPath"
+                  echo $makeBinPath | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+                  Write-Host "Successfully added make path: $makeBinPath"
+              } else {
+                  Write-Host "Warning: Could not find make installation path, using system PATH"
+              }
+          }
+
+      # 步骤3：安装MSYS2与MinGW工具链（含32/64位编译器）
+      - name: Setup MSYS2 & MinGW toolchain
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          # 安装基础开发工具，gcc会自动包含g++
+          install: >-
+            base-devel
+            mingw-w64-x86_64-gcc
+            mingw-w64-i686-gcc
+
+      # 步骤4：检查系统中已有的编译器路径
+      - name: Check existing compiler paths
+        run: |
+          Write-Host "Checking existing compiler paths:"
+          # 检查系统PATH中的编译器
+          where g++
+          where make
+          where windres
+
+      # 步骤5：验证环境可用性（强制使用cmd执行，符合要求）
+      - name: Verify toolchain in cmd
+        shell: cmd
+        run: |
+          echo ========== Verify make ==========
+          where make
+          make --version
+          echo.
+          echo ========== Verify g++ ==========
+          where g++
+          g++ --version
+          echo.
+          echo ========== Verify windres ==========
+          where windres
+          windres --version
+          echo.
+          echo ========== Environment verification completed ==========
+          echo All required tools are available in the system PATH
+
+      # 步骤6：执行make编译测试（核心步骤，cmd执行）
+      - name: Run make (DEBUG=${{ matrix.DEBUG }}, ARCH=${{ matrix.ARCH }})        
+        shell: cmd
+        # 若makefile不在仓库根目录，可在下方添加 working-directory: 你的子目录路径
+        run: |
+          echo "Running make DEBUG=${{ matrix.DEBUG }} ARCH=${{ matrix.ARCH }}"
+          echo "Current directory: %CD%"
+          echo "PATH: %PATH%"
+          make DEBUG=${{ matrix.DEBUG }} ARCH=${{ matrix.ARCH }}
+          if %errorlevel% neq 0 (
+              echo "Make failed with exit code %errorlevel%, retrying..."
+              make DEBUG=${{ matrix.DEBUG }} ARCH=${{ matrix.ARCH }}
+              if %errorlevel% neq 0 (
+                  echo "Make failed again with exit code %errorlevel%, retrying one more time..."
+                  make DEBUG=${{ matrix.DEBUG }} ARCH=${{ matrix.ARCH }}
+              )
+          )
