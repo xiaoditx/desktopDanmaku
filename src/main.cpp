@@ -6,6 +6,7 @@
 #include <commctrl.h>
 #include <optional>
 #include <gdiplus.h>
+#include <stdexcept>
 #include "main.hpp"
 
 // 向前声明
@@ -21,6 +22,15 @@ std::optional<danmaku::Element> g_elemLabelAppName;
 std::optional<danmaku::Element> g_elemLabelPrompt;
 std::optional<danmaku::Element> g_elemEditContent;
 std::optional<danmaku::Element> g_elemButton;
+std::optional<danmaku::Element> g_elemLabelAppName;
+std::optional<danmaku::Element> g_elemLabelPrompt;
+std::optional<danmaku::Element> g_elemEditContent;
+std::optional<danmaku::Element> g_elemButton;
+// ↓ 后期将会禁用
+std::optional<danmaku::Element> g_elemLabelColor1;
+std::optional<danmaku::Element> g_elemEditColor1;
+std::optional<danmaku::Element> g_elemLabelColor2;
+std::optional<danmaku::Element> g_elemEditColor2;
 
 int WINAPI wWinMain([[maybe_unused]] HINSTANCE hInstance, [[maybe_unused]] HINSTANCE hPrevInstance,
                     [[maybe_unused]] PWSTR pCmdLine, [[maybe_unused]] int nCmdShow)
@@ -128,38 +138,112 @@ void init_creatElement(danmaku::BaseWindow &mainWND)
         defaultFont,
         &bei);
 
+    // 选择文本颜色(提示标签)
+    g_elemLabelColor1.emplace(
+        mainWND.getHandle(),
+        danmaku::elementType::label,
+        danmaku::rect{5, 80, 100, 28},
+        L"文本颜色：",
+        defaultFont,
+        &lei);
+
+    // 选择文本颜色(输入框)
+    g_elemEditColor1.emplace(
+        mainWND.getHandle(),
+        danmaku::elementType::edit,
+        danmaku::rect{90, 80, 380, 28},
+        L"",
+        defaultFont,
+        nullptr);
+
+    // 选择边框颜色(提示标签)
+    g_elemLabelColor2.emplace(
+        mainWND.getHandle(),
+        danmaku::elementType::label,
+        danmaku::rect{5, 120, 100, 28},
+        L"边框颜色：",
+        defaultFont,
+        &lei);
+
+    // 选择边框颜色(输入框)
+    g_elemEditColor2.emplace(
+        mainWND.getHandle(),
+        danmaku::elementType::edit,
+        danmaku::rect{90, 120, 380, 28},
+        L"",
+        defaultFont,
+        nullptr);
+
     // 创建元素（通过 .value() 获取引用）
     danmaku::createElements(
         g_elemLabelAppName.value(),
         g_elemLabelPrompt.value(),
         g_elemEditContent.value(),
+        g_elemLabelColor1.value(),
+        g_elemEditColor1.value(),
+        g_elemLabelColor2.value(),
+        g_elemEditColor2.value(),
         g_elemButton.value());
+}
+
+Gdiplus::ARGB HexStringToARGB(const std::wstring &hexStr)
+{
+    try
+    {
+        unsigned long value = std::stoul(hexStr, nullptr, 16);
+        return static_cast<Gdiplus::ARGB>(value);
+    }
+    catch (const std::invalid_argument &)
+    {
+        // 字符串不包含有效数字
+        return 0xFF000000; // 默认返回黑色不透明
+    }
+    catch (const std::out_of_range &)
+    {
+        // 数值超出 unsigned long 范围
+        return 0xFFFFFFFF; // 返回白色不透明
+    }
 }
 
 void buttonClickHandler()
 {
     // 获取输入框内容
     wchar_t szBuffer[256]{};
-    GetDlgItemTextW(g_elemEditContent->getParentHwnd(), g_elemEditContent->getID(), szBuffer, 256);
+    GetDlgItemTextW(g_elemEditContent->getParentHwnd(), g_elemEditContent->getID(), szBuffer, _countof(szBuffer));
     std::wstring content = szBuffer;
     if (content.empty())
     {
         MessageBoxW(nullptr, L"请输入弹幕内容！", L"提示", MB_OK);
         return;
     }
-    if(countVisibleCharacters(content) > 80)
+    if (countVisibleCharacters(content) > 80)
     {
         MessageBoxW(nullptr, L"弹幕内容不能超过80个字符！", L"提示", MB_OK);
         return;
+    }
+
+    GetDlgItemTextW(g_elemEditColor1->getParentHwnd(), g_elemEditColor1->getID(), szBuffer, _countof(szBuffer));
+    std::wstring color1 = szBuffer;
+    if (color1.empty())
+    {
+        // 默认颜色（白色不透明）
+        color1 = L"0xffffffff";
+    }
+    GetDlgItemTextW(g_elemEditColor2->getParentHwnd(), g_elemEditColor2->getID(), szBuffer, _countof(szBuffer));
+    std::wstring color2 = szBuffer;
+    if (color2.empty())
+    {
+        // 默认颜色（黑色不透明）
+        color2 = L"0xff000000";
     }
 
     // 弹幕发送逻辑
     if (g_overlayWindow)
     {
         // 添加新弹幕
-        g_overlayWindow->addDanmaku(content, 40, 0xff'ffffff, 0xff'000000);
+        g_overlayWindow->addDanmaku(content, 40, HexStringToARGB(color1), HexStringToARGB(color2));
     }
 
     // 发送后清空输入框
-    //SetDlgItemTextW(g_elemEditContent->getParentHwnd(), g_elemEditContent->getID(), L"");
+    // SetDlgItemTextW(g_elemEditContent->getParentHwnd(), g_elemEditContent->getID(), L"");
 }
