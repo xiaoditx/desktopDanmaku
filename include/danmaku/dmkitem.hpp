@@ -1,12 +1,10 @@
 #ifndef DANMAKU_DMKITEM_HPP
 #define DANMAKU_DMKITEM_HPP
 
-#include <windows.h>
-#include <gdiplus.h>
+#include "dmkbmpcache.hpp"
 
 #include <string>
 
-#include "functions/gpptr.hpp"
 
 namespace danmaku
 {
@@ -16,9 +14,7 @@ namespace danmaku
         Gdiplus::ARGB fillColor_{};
         Gdiplus::ARGB borderColor_{};
         std::wstring text_{};
-        HBITMAP dib_{};
-        void* dibData_{};
-        GpPtr<Gdiplus::GpBitmap> bitmap_{};
+        danmakuBitmapCache::Bitmap bitmap_{};
         float width_{};
         float height_{};
         float emSize_{};
@@ -50,6 +46,11 @@ namespace danmaku
                                          text_{text},
                                          emSize_{emSize}
         {
+        }
+
+        ~danmakuItem()
+        {
+            invalidateCache();
         }
 
         void setX(float x) { x_ = x; }

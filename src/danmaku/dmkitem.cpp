@@ -8,10 +8,8 @@ namespace danmaku
 {
     void danmakuItem::rasterize()
     {
-        if (bitmap_.get())
+        if (bitmap_.bitmap.get())
             return;
-
-        assert(!dib_ && !dibData_);
 
         // TODO 拆离字体逻辑，对接全局字体管理
         // TODO 允许自定义字体属性（如字体名称、加粗、斜体等）
@@ -53,25 +51,11 @@ namespace danmaku
         width_ = ceilf(pathRect.Width);
         height_ = ceilf(pathRect.Height);
 
-        BITMAPINFO bmi{};
-        bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-        bmi.bmiHeader.biWidth = pathRect.Width;
-        bmi.bmiHeader.biHeight = -pathRect.Height;
-        bmi.bmiHeader.biPlanes = 1;
-        bmi.bmiHeader.biBitCount = 32;
-        dib_ = CreateDIBSection(nullptr, &bmi, DIB_RGB_COLORS, &dibData_, nullptr, 0);
-
-        // 创建与边界矩形等大的位图（32位PARGB格式，支持透明通道）
-        GdipCreateBitmapFromScan0(
-            pathRect.Width, pathRect.Height,
-            pathRect.Width * 4,
-            PixelFormat32bppPARGB,
-            (BYTE *)dibData_,
-            &bitmap_);
+        danmakuBitmapCache::instance().allocate((int)width_, (int)height_, bitmap_);
 
         // 从位图获取图形上下文，用于绘制文本
         GpPtr<Gdiplus::GpGraphics> g;
-        GdipGetImageGraphicsContext(bitmap_.get(), &g);
+        GdipGetImageGraphicsContext(bitmap_.bitmap.get(), &g);
 
         // 开启抗锯齿，使文本边缘平滑
         GdipSetSmoothingMode(g.get(), Gdiplus::SmoothingModeAntiAlias);
@@ -94,17 +78,17 @@ namespace danmaku
     Gdiplus::Status danmakuItem::draw(Gdiplus::GpGraphics *g, float x, float y)
     {
         // 若尚未光栅化，则立即执行
-        if (!bitmap_.get())
+        if (!bitmap_.bitmap.get())
             rasterize();
         // 在位图的指定位置绘制图像
-        return GdipDrawImage(g, bitmap_.get(), x, y);
+        return GdipDrawImage(g, bitmap_.bitmap.get(), x, y);
     }
 
     BOOL danmakuItem::drawGdi(HDC dcDst, HDC cdc, float x, float y)
     {
-        if (!bitmap_.get())
+        if (!bitmap_.bitmap.get())
             rasterize();
-        SelectObject(cdc, dib_);
+        SelectObject(cdc, bitmap_.dib);
         constexpr BLENDFUNCTION BlendFuncAlpha{AC_SRC_OVER, 0, 255, AC_SRC_ALPHA};
         return GdiAlphaBlend(dcDst, (int)x, (int)y, (int)width_, (int)height_,
                              cdc, 0, 0, (int)width_, (int)height_, BlendFuncAlpha);
@@ -112,12 +96,7 @@ namespace danmaku
 
     void danmakuItem::invalidateCache()
     {
+        danmakuBitmapCache::instance().free(std::move(bitmap_));
         bitmap_.clear();
-        if (dib_)
-        {
-            DeleteObject(dib_);
-            dib_ = nullptr;
-            dibData_ = nullptr;
-        }
     }
 }
