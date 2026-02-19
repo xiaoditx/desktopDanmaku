@@ -4,8 +4,8 @@
 
 using namespace Gdiplus::DllExports;
 
-constexpr UINT_PTR TimerWorldTick = 1;      // 定时器ID
 constexpr UINT TimerWorldTickInterval = 14; // 定时器间隔
+constexpr UINT TimerWorldTickMinInterval = 12; // TimerWorldTickInterval减去误差
 
 namespace danmaku
 {
@@ -84,6 +84,32 @@ namespace danmaku
         paint();
     }
 
+    DWORD CALLBACK OverlayWindow::timerThread(LPVOID param)
+    {
+        const auto self = (OverlayWindow *)param;
+        const auto timer = CreateWaitableTimerW(nullptr, FALSE, nullptr);
+
+        ULONGLONG lastTick = GetTickCount64();
+        while (!self->timerThreadExit_)
+        {
+            const auto now = GetTickCount64();
+            if (const auto param = WPARAM(now - lastTick))
+                SendMessageW(self->hwnd, MessageClockTick, param, 0);
+            
+            const auto delta = GetTickCount64() - lastTick;
+            lastTick = now;
+            if (delta < TimerWorldTickMinInterval)// 延时以消耗剩余时间
+            {
+                LARGE_INTEGER dueTime;
+                dueTime.QuadPart = -((TimerWorldTickMinInterval - delta) * 10000ll);
+                SetWaitableTimer(timer, &dueTime, 0, nullptr, nullptr, FALSE);
+                WaitForSingleObject(timer, INFINITE);
+            }
+        }
+        CloseHandle(timer);
+        return 0;
+    }
+
     void OverlayWindow::paint()
     {
         const auto &dirtyRect = danmakuMgr_.getDirtyRect();
@@ -138,21 +164,21 @@ namespace danmaku
     {
         switch (uMsg)
         {
-        case WM_TIMER:
-            if (wParam == TimerWorldTick)
-            {
-                tick(TimerWorldTickInterval / 1000.0f); // 将毫秒转换为秒
-            }
+        case MessageClockTick:
+            tick(wParam / 1000.f);
             break;
         case WM_CREATE:
             // TEMP 测试
             danmakuMgr_.setLineHeight(40);
             danmakuMgr_.setLineGap(10);
-            danmakuMgr_.setDuration(5.0f);
+            danmakuMgr_.setDuration(5.f);
             danmakuMgr_.setItemGap(10);
-            danmakuMgr_.setSpeedFactor(1.0f);
+            danmakuMgr_.setSpeedFactor(1.f);
             layoutFullscreen();
-            SetTimer(hwnd, TimerWorldTick, TimerWorldTickInterval, nullptr);
+
+            assert(!timerThreadHandle_);
+            timerThreadExit_ = FALSE;
+            timerThreadHandle_ = CreateThread(nullptr, 0, timerThread, this, 0, nullptr);
             break;
         case WM_SIZE:
             // 更新窗口尺寸并重新创建内存DC
@@ -167,6 +193,11 @@ namespace danmaku
             layoutFullscreen();
             break;
         case WM_DESTROY:
+            timerThreadExit_ = TRUE;
+            WaitForSingleObject(timerThreadHandle_, INFINITE);
+            CloseHandle(timerThreadHandle_);
+            timerThreadHandle_ = nullptr;
+
             // 清理资源：删除内存DC、位图和GDI+图形对象
             DeleteDC(cdc_);
             cdc_ = nullptr;
