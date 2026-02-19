@@ -4,7 +4,7 @@
 
 namespace danmaku
 {
-    class danmakuManager
+    class DanmakuManager
     {
     private:
         constexpr static size_t InvalidTrack = std::numeric_limits<size_t>::max();
@@ -12,7 +12,7 @@ namespace danmaku
         struct Track
         {
             float y{};
-            std::vector<danmakuItem> items{};
+            std::vector<DanmakuItem> items{};
         };
 
         float screenWidth_{};
@@ -32,7 +32,7 @@ namespace danmaku
         // WARNING 尺寸、行高、行距改变后必须调用本函数
         void recalculateTracks();
 
-        bool addDanmaku(danmakuItem &&item);
+        bool addDanmaku(DanmakuItem &&item);
 
         // dt单位为秒
         void tick(float dt);

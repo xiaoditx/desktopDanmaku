@@ -9,7 +9,7 @@
 namespace danmaku
 {
     // overlay窗口覆盖整个屏幕，用于显示弹幕
-    class overlayWindow : public baseWindow
+    class OverlayWindow : public BaseWindow
     {
     private:
         // 内存DC，用于双缓冲绘制
@@ -22,7 +22,7 @@ namespace danmaku
         HGDIOBJ oldObject_{};
         int width_{}, height_{}; // 客户区
 
-        danmakuManager danmakuMgr_;
+        DanmakuManager danmakuMgr_;
 
         BOOL layoutFullscreen();
 
@@ -32,9 +32,9 @@ namespace danmaku
 
         LRESULT handleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) override;
 
-        overlayWindow &create();
+        OverlayWindow &create();
 
-        baseWindow &show() override
+        BaseWindow &show() override
         {
             ShowWindow(hwnd, SW_SHOW);
             return *this;
@@ -45,7 +45,7 @@ namespace danmaku
         // 添加弹幕的方法
         void addDanmaku(const std::wstring &text, float emSize, Gdiplus::ARGB fillColor, Gdiplus::ARGB borderColor)
         {
-            danmakuMgr_.addDanmaku(danmakuItem{text, emSize, fillColor, borderColor});
+            danmakuMgr_.addDanmaku(DanmakuItem{text, emSize, fillColor, borderColor});
             paint();
         }
 

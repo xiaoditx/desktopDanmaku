@@ -2,7 +2,7 @@
 
 namespace danmaku
 {
-    element &element::create()
+    Element &Element::create()
     {
         bool needFont = false;
         switch (type)
@@ -34,7 +34,7 @@ namespace danmaku
         return *this;
     }
 
-    HRESULT element::procMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
+    HRESULT Element::procMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         switch (uMsg)
         {
@@ -54,7 +54,7 @@ namespace danmaku
                 {
                 case elementType::label:
                 {
-                    const auto *const labelInfo = (labelExtraInfo *)extra;
+                    const auto *const labelInfo = (LabelExtraInfo *)extra;
                     // 设置文本颜色
                     SetTextColor(hdcCtrl, labelInfo->textColor);
                     // 设置背景模式为不透明，这样背景颜色才会生效
@@ -87,7 +87,7 @@ namespace danmaku
                     if (extra != nullptr)
                     {
                         // 调用事件处理（如果有）
-                        auto *btnInfo = (buttonExtraInfo *)extra;
+                        auto *btnInfo = (ButtonExtraInfo *)extra;
                         if (btnInfo->clickProc)
                             btnInfo->clickProc();
                     }
@@ -101,7 +101,7 @@ namespace danmaku
         return S_OK;
     }
 
-    element &element::resetFont(HFONT font)
+    Element &Element::resetFont(HFONT font)
     {
         elementFont = font;
         if (hwnd)

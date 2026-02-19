@@ -3,7 +3,7 @@
 namespace danmaku
 {
     // FIXME 充满时仍然应当选择一个轨道显示
-    size_t danmakuManager::findBestTrack(float itemSpeed) const
+    size_t DanmakuManager::findBestTrack(float itemSpeed) const
     {
         constexpr size_t startTrack = 0;
         for (size_t i = 0; i < tracks_.size(); ++i)
@@ -35,7 +35,7 @@ namespace danmaku
         return InvalidTrack;
     }
 
-    void danmakuManager::recalculateTracks()
+    void DanmakuManager::recalculateTracks()
     {
         size_t trackCount = (size_t)ceilf(screenHeight_ / lineHeight_);
         tracks_.resize(trackCount);
@@ -45,7 +45,7 @@ namespace danmaku
         }
     }
 
-    bool danmakuManager::addDanmaku(danmakuItem &&item)
+    bool DanmakuManager::addDanmaku(DanmakuItem &&item)
     {
         item.rasterize();
         const auto distance = screenWidth_ + item.getWidth();
@@ -62,7 +62,7 @@ namespace danmaku
         return false;
     }
 
-    void danmakuManager::tick(float dt)
+    void DanmakuManager::tick(float dt)
     {
         RECT newRect{ INT_MAX, INT_MAX, INT_MIN, INT_MIN };
         for (auto &track : tracks_)
@@ -94,7 +94,7 @@ namespace danmaku
         dirtyRectLast_ = newRect;
     }
 
-    Gdiplus::Status danmakuManager::draw(Gdiplus::GpGraphics *g)
+    Gdiplus::Status DanmakuManager::draw(Gdiplus::GpGraphics *g)
     {
         Gdiplus::Status status = Gdiplus::Ok;
         for (auto &track : tracks_)
@@ -109,7 +109,7 @@ namespace danmaku
         return status;
     }
 
-    BOOL danmakuManager::drawGdi(HDC dcDst, HDC cdc)
+    BOOL DanmakuManager::drawGdi(HDC dcDst, HDC cdc)
     {
         BOOL b;
         for (auto &track : tracks_)

@@ -6,7 +6,7 @@ using namespace Gdiplus::DllExports;
 
 namespace danmaku
 {
-    void danmakuItem::rasterize()
+    void DanmakuItem::rasterize()
     {
         if (bitmap_.bitmap.get())
             return;
@@ -51,7 +51,7 @@ namespace danmaku
         width_ = ceilf(pathRect.Width);
         height_ = ceilf(pathRect.Height);
 
-        danmakuBitmapCache::instance().allocate((int)width_, (int)height_, bitmap_);
+        DanmakuBitmapCache::instance().allocate((int)width_, (int)height_, bitmap_);
 
         // 从位图获取图形上下文，用于绘制文本
         GpPtr<Gdiplus::GpGraphics> g;
@@ -75,7 +75,7 @@ namespace danmaku
     }
 
     // 在指定的图形上下文中绘制弹幕位图
-    Gdiplus::Status danmakuItem::draw(Gdiplus::GpGraphics *g, float x, float y)
+    Gdiplus::Status DanmakuItem::draw(Gdiplus::GpGraphics *g, float x, float y)
     {
         // 若尚未光栅化，则立即执行
         if (!bitmap_.bitmap.get())
@@ -84,7 +84,7 @@ namespace danmaku
         return GdipDrawImage(g, bitmap_.bitmap.get(), x, y);
     }
 
-    BOOL danmakuItem::drawGdi(HDC dcDst, HDC cdc, float x, float y)
+    BOOL DanmakuItem::drawGdi(HDC dcDst, HDC cdc, float x, float y)
     {
         if (!bitmap_.bitmap.get())
             rasterize();
@@ -94,9 +94,9 @@ namespace danmaku
                              cdc, 0, 0, (int)width_, (int)height_, BlendFuncAlpha);
     }
 
-    void danmakuItem::invalidateCache()
+    void DanmakuItem::invalidateCache()
     {
-        danmakuBitmapCache::instance().free(std::move(bitmap_));
+        DanmakuBitmapCache::instance().free(std::move(bitmap_));
         bitmap_.clear();
     }
 }

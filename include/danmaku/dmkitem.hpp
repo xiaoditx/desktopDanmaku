@@ -8,13 +8,13 @@
 
 namespace danmaku
 {
-    class danmakuItem
+    class DanmakuItem
     {
     private:
         Gdiplus::ARGB fillColor_{};
         Gdiplus::ARGB borderColor_{};
         std::wstring text_{};
-        danmakuBitmapCache::Bitmap bitmap_{};
+        DanmakuBitmapCache::Bitmap bitmap_{};
         float width_{};
         float height_{};
         float emSize_{};
@@ -31,13 +31,13 @@ namespace danmaku
 
         BOOL drawGdi(HDC dcDst, HDC cdc, float x, float y);
 
-        danmakuItem() = default;
-        danmakuItem(const danmakuItem &) = delete;
-        danmakuItem &operator=(const danmakuItem &) = delete;
-        danmakuItem(danmakuItem &&) = default;
-        danmakuItem &operator=(danmakuItem &&) = default;
+        DanmakuItem() = default;
+        DanmakuItem(const DanmakuItem &) = delete;
+        DanmakuItem &operator=(const DanmakuItem &) = delete;
+        DanmakuItem(DanmakuItem &&) = default;
+        DanmakuItem &operator=(DanmakuItem &&) = default;
 
-        danmakuItem(
+        DanmakuItem(
             std::wstring_view text,
             float emSize,
             Gdiplus::ARGB fillColor,
@@ -48,7 +48,7 @@ namespace danmaku
         {
         }
 
-        ~danmakuItem()
+        ~DanmakuItem()
         {
             invalidateCache();
         }

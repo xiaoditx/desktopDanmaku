@@ -6,7 +6,7 @@ using namespace Gdiplus::DllExports;
 
 namespace danmaku
 {
-    BOOL danmakuBitmapCache::allocate(int width, int height, Bitmap &outBmp)
+    BOOL DanmakuBitmapCache::allocate(int width, int height, Bitmap &outBmp)
     {
         {
             SrwExclusiveGuard guard(lock_);
@@ -45,7 +45,7 @@ namespace danmaku
         return TRUE;
     }
 
-    void danmakuBitmapCache::free(Bitmap &&bmp)
+    void DanmakuBitmapCache::free(Bitmap &&bmp)
     {
         if (!bmp.bitmap.get())
         {

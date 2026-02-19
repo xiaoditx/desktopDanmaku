@@ -3,15 +3,15 @@
 namespace danmaku
 {
     // 静态成员定义及初始化
-    UINT_PTR element::currentElementID = 0;
-    std::unordered_map<UINT_PTR, element *> element::s_idMap;
-    std::vector<UINT_PTR> element::s_freeIds;
+    UINT_PTR Element::currentElementID = 0;
+    std::unordered_map<UINT_PTR, Element *> Element::s_idMap;
+    std::vector<UINT_PTR> Element::s_freeIds;
     // 互斥锁（我知道我们这里用不上但我想试试）
     // （毕竟这个代码未来或许能用上）
-    std::mutex element::s_mutex;
+    std::mutex Element::s_mutex;
 
     // ---------- 静态辅助函数 ----------
-    UINT_PTR element::allocateID(element *elem)
+    UINT_PTR Element::allocateID(Element *elem)
     {
         std::lock_guard<std::mutex> lock(s_mutex);
         UINT_PTR id;
@@ -28,7 +28,7 @@ namespace danmaku
         return id;
     }
 
-    void element::releaseID(UINT_PTR id, element *obj)
+    void Element::releaseID(UINT_PTR id, Element *obj)
     {
         std::lock_guard<std::mutex> lock(s_mutex);
         auto it = s_idMap.find(id); // 迭代器
@@ -45,25 +45,25 @@ namespace danmaku
         }
     }
 
-    element &searchID(UINT_PTR id)
+    Element &searchID(UINT_PTR id)
     {
-        std::lock_guard<std::mutex> lock(element::s_mutex);
-        auto it = element::s_idMap.find(id);
-        if (it != element::s_idMap.end())
+        std::lock_guard<std::mutex> lock(Element::s_mutex);
+        auto it = Element::s_idMap.find(id);
+        if (it != Element::s_idMap.end())
         {
             return *(it->second);
         }
         else
         {
-            throw std::runtime_error("element::searchID: invalid ID");
+            throw std::runtime_error("Element::searchID: invalid ID");
         }
     }
     // ID所有权转移
-    void element::idTransfer(UINT_PTR id, element *newOwner)
+    void Element::idTransfer(UINT_PTR id, Element *newOwner)
     {
-        std::lock_guard<std::mutex> lock(element::s_mutex);
-        auto it = element::s_idMap.find(id);
-        if (it != element::s_idMap.end())
+        std::lock_guard<std::mutex> lock(Element::s_mutex);
+        auto it = Element::s_idMap.find(id);
+        if (it != Element::s_idMap.end())
         {
             it->second = newOwner;
         }

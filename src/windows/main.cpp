@@ -4,19 +4,19 @@ namespace danmaku
 {
 
     // 主窗口的创建函数（无参数版本）
-    mainWindow &mainWindow::create()
+    MainWindow &MainWindow::create()
     {
         // 调用带参数的 create 函数，使用默认标题和大小
         return create(L"桌面弹幕", 800, 600);
     }
 
     // 主窗口的创建函数（带参数版本）
-    mainWindow &mainWindow::create(std::wstring title, int width, int height)
+    MainWindow &MainWindow::create(std::wstring title, int width, int height)
     {
         // 注册窗口类
         dm_wc.cbSize = sizeof(WNDCLASSEX);
         dm_wc.style = CS_HREDRAW | CS_VREDRAW;
-        dm_wc.lpfnWndProc = baseWindow::wndProc;
+        dm_wc.lpfnWndProc = BaseWindow::wndProc;
         dm_wc.cbClsExtra = 0;
         dm_wc.cbWndExtra = 0;
         dm_wc.hInstance = GetModuleHandle(nullptr);
@@ -59,7 +59,7 @@ namespace danmaku
     }
 
     // 主窗口的显示函数
-    mainWindow &mainWindow::show()
+    MainWindow &MainWindow::show()
     {
         ShowWindow(hwnd, SW_SHOW);
         // UpdateWindow(hwnd);
@@ -79,7 +79,7 @@ namespace danmaku
     }
 
     // 主窗口的消息处理函数
-    LRESULT mainWindow::handleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
+    LRESULT MainWindow::handleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         switch (uMsg)
         {

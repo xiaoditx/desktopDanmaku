@@ -7,7 +7,7 @@
 
 namespace danmaku
 {
-    class danmakuBitmapCache
+    class DanmakuBitmapCache
     {
     public:
         struct Bitmap
@@ -58,11 +58,11 @@ namespace danmaku
         std::vector<Bitmap> cache_{};
         SrwLock lock_{};
 
-        danmakuBitmapCache() = default;
+        DanmakuBitmapCache() = default;
     public:
-        static danmakuBitmapCache &instance()
+        static DanmakuBitmapCache &instance()
         {
-            static danmakuBitmapCache cache{};
+            static DanmakuBitmapCache cache{};
             return cache;
         }
 

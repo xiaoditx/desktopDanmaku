@@ -5,19 +5,19 @@
 
 namespace danmaku
 {
-    struct labelExtraInfo
+    struct LabelExtraInfo
     {
         // 颜色
         COLORREF textColor = RGB(0, 0, 0);             // 默认黑色
         COLORREF backgroundColor = RGB(255, 255, 255); // 默认白色
     };
-    enum class buttonProcType
+    enum class ButtonProcType
     {
         click, // 姑且只用这一个，下面的以后再说
         hover, // 好吧其实以后也不一定能用得到
         leave
     };
-    struct buttonExtraInfo
+    struct ButtonExtraInfo
     {
         std::function<void()> clickProc = nullptr; // 点击事件处理函数
         std::function<void()> hoverProc = nullptr; // 鼠标悬停事件

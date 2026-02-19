@@ -33,7 +33,7 @@ namespace danmaku
     }
 
     // 将窗口填充整个屏幕
-    BOOL overlayWindow::layoutFullscreen()
+    BOOL OverlayWindow::layoutFullscreen()
     {
         // 获取主显示器句柄
         const auto mon = getPrimaryMonitor();
@@ -55,7 +55,7 @@ namespace danmaku
     }
 
     // 重新创建内存DC
-    void overlayWindow::recreateMemoryDC()
+    void OverlayWindow::recreateMemoryDC()
     {
         // 获取窗口DC
         const auto dc = GetDC(hwnd);
@@ -92,7 +92,7 @@ namespace danmaku
         paint();
     }
 
-    void overlayWindow::paint()
+    void OverlayWindow::paint()
     {
         const auto &dirtyRect = danmakuMgr_.getDirtyRect();
         if (IsRectEmpty(&dirtyRect))
@@ -141,7 +141,7 @@ namespace danmaku
     }
 
     // 消息处理
-    LRESULT overlayWindow::handleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
+    LRESULT OverlayWindow::handleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         switch (uMsg)
         {
@@ -188,12 +188,12 @@ namespace danmaku
     }
 
     // 创建窗口
-    overlayWindow &overlayWindow::create()
+    OverlayWindow &OverlayWindow::create()
     {
         WNDCLASSW wc{};
         // 窗口样式：当宽度或高度改变时重绘窗口
         wc.style = CS_HREDRAW | CS_VREDRAW;
-        wc.lpfnWndProc = baseWindow::wndProc;
+        wc.lpfnWndProc = BaseWindow::wndProc;
         wc.hInstance = GetModuleHandleW(nullptr);
         wc.hCursor = LoadCursorW(nullptr, IDC_ARROW);
         wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
