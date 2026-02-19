@@ -14,7 +14,7 @@ namespace danmaku
             break;
         case elementType::edit:
             needFont = true;
-            hwnd = CreateWindowExW(0, L"EDIT", text.c_str(), WS_TABSTOP | WS_VISIBLE | WS_CHILD | ES_LEFT | WS_BORDER,
+            hwnd = CreateWindowExW(0, L"EDIT", text.c_str(), WS_TABSTOP | WS_VISIBLE | WS_CHILD | ES_LEFT | ES_AUTOHSCROLL | WS_BORDER,
                                    position.x, position.y, position.width, position.height, parentHwnd, (HMENU)elementID, GetModuleHandle(nullptr), nullptr);
             break;
         case elementType::label:

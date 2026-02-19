@@ -143,6 +143,11 @@ void buttonClickHandler()
         MessageBoxW(nullptr, L"请输入弹幕内容！", L"提示", MB_OK);
         return;
     }
+    if(countVisibleCharacters(content) > 80)
+    {
+        MessageBoxW(nullptr, L"弹幕内容不能超过80个字符！", L"提示", MB_OK);
+        return;
+    }
 
     // 弹幕发送逻辑
     if (g_overlayWindow)
