@@ -4,7 +4,7 @@
 
 <img alt="LOGO" src="./resource/icon.png" width="256" height="256" />
 
-# 发声键盘 - DesktopDanmaku
+# 桌面弹幕 - DesktopDanmaku
 
 V 0.0.0.0 开发中
 
