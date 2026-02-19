@@ -21,11 +21,11 @@ namespace danmaku
         dm_wc.cbClsExtra = 0;
         dm_wc.cbWndExtra = 0;
         dm_wc.hInstance = GetModuleHandle(nullptr);
-        // dm_wc.hIcon = nullptr;//
         dm_wc.hCursor = LoadCursorW(nullptr, IDC_ARROW);
         dm_wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
         dm_wc.lpszMenuName = nullptr;
         dm_wc.lpszClassName = L"Danmaku.WndCls.Main";
+        // dm_wc.hIcon = nullptr;//
         // dm_wc.hIconSm = nullptr;//
 
         if (!RegisterClassExW(&dm_wc))
@@ -40,7 +40,7 @@ namespace danmaku
         hwnd = CreateWindowExW(
             0, dm_wc.lpszClassName, title.c_str(),
             // 禁止调整窗口大小和最大化
-            WS_OVERLAPPEDWINDOW & ~(WS_THICKFRAME | WS_MAXIMIZEBOX),
+            WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
             // 使用默认位置，指定宽高
             CW_USEDEFAULT, CW_USEDEFAULT, width, height,
             // 父窗口和菜单都设为 nullptr，使用当前实例句柄，传递 this 指针以供消息处理使用

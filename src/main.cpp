@@ -8,6 +8,7 @@ void buttonClickHandler();
 // 全局 GDI+ token
 ULONG_PTR g_gpToken{};
 // 全局 OverlayWindow 指针，用于在按钮点击时添加弹幕
+danmaku::MainWindow *g_mainWindow = nullptr;
 danmaku::OverlayWindow *g_overlayWindow = nullptr;
 // 全局 optional 变量
 std::optional<danmaku::Element> g_elemLabelAppName;
@@ -50,23 +51,26 @@ int WINAPI wWinMain([[maybe_unused]] HINSTANCE hInstance, [[maybe_unused]] HINST
     MSG msg;
 
     danmaku::DanmakuBitmapCache::startup();
+
+    assert(!g_mainWindow);
+    g_mainWindow = new danmaku::MainWindow{};
+    g_mainWindow->create(L"桌面弹幕", 500, 300).show();
+    // 获取overlayWindow实例的指针
+    g_overlayWindow = &g_mainWindow->getOverlay();
+
+    // 初始化元素
+    init_creatElement(*g_mainWindow);
+
+    while (GetMessageW(&msg, nullptr, 0, 0))
     {
-        danmaku::MainWindow mainWindowObj;
-        mainWindowObj.create(L"桌面弹幕", 500, 300).show();
-
-        // 获取overlayWindow实例的指针
-        g_overlayWindow = &mainWindowObj.getOverlay();
-
-        // 初始化元素
-        init_creatElement(mainWindowObj);
-
-        while (GetMessageW(&msg, nullptr, 0, 0))
+        if (!IsDialogMessageW(g_mainWindow->getHandle(), &msg))
         {
             TranslateMessage(&msg);
             DispatchMessageW(&msg);
         }
+    }
 
-    } // GDI+关闭前析构
+    delete g_mainWindow; // GDI+关闭前析构
 
     danmaku::DanmakuBitmapCache::shutdown();
     Gdiplus::GdiplusShutdown(g_gpToken);
@@ -167,11 +171,11 @@ void init_creatElement(danmaku::BaseWindow &mainWND)
         g_elemLabelAppName.value(),
         g_elemLabelPrompt.value(),
         g_elemEditContent.value(),
+        g_elemButton.value(),
         g_elemLabelColor1.value(),
         g_elemEditColor1.value(),
         g_elemLabelColor2.value(),
-        g_elemEditColor2.value(),
-        g_elemButton.value());
+        g_elemEditColor2.value());
 }
 
 Gdiplus::ARGB HexStringToARGB(const std::wstring &hexStr)
@@ -201,12 +205,12 @@ void buttonClickHandler()
     std::wstring content = szBuffer;
     if (content.empty())
     {
-        MessageBoxW(nullptr, L"请输入弹幕内容！", L"提示", MB_OK);
+        MessageBoxW(g_mainWindow->getHandle(), L"请输入弹幕内容！", L"提示", MB_OK);
         return;
     }
     if (countVisibleCharacters(content) > 80)
     {
-        MessageBoxW(nullptr, L"弹幕内容不能超过80个字符！", L"提示", MB_OK);
+        MessageBoxW(g_mainWindow->getHandle(), L"弹幕内容不能超过80个字符！", L"提示", MB_OK);
         return;
     }
 

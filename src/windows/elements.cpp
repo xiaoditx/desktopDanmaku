@@ -10,18 +10,33 @@ namespace danmaku
         {
         case elementType::button:
             needFont = true;
-            hwnd = CreateWindowExW(0, L"BUTTON", text.c_str(), WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-                                   position.x, position.y, position.width, position.height, parentHwnd, (HMENU)elementID, GetModuleHandle(nullptr), nullptr);
+            hwnd = CreateWindowExW(
+                0,
+                L"BUTTON",
+                text.c_str(),
+                WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+                position.x, position.y, position.width, position.height,
+                parentHwnd, (HMENU)elementID, nullptr, nullptr);
             break;
         case elementType::edit:
             needFont = true;
-            hwnd = CreateWindowExW(0, L"EDIT", text.c_str(), WS_TABSTOP | WS_VISIBLE | WS_CHILD | ES_LEFT | ES_AUTOHSCROLL | WS_BORDER,
-                                   position.x, position.y, position.width, position.height, parentHwnd, (HMENU)elementID, GetModuleHandle(nullptr), nullptr);
+            hwnd = CreateWindowExW(
+                0,
+                L"EDIT",
+                text.c_str(),
+                WS_TABSTOP | WS_VISIBLE | WS_CHILD | ES_LEFT | ES_AUTOHSCROLL | WS_BORDER,
+                position.x, position.y, position.width, position.height,
+                parentHwnd, (HMENU)elementID, nullptr, nullptr);
             break;
         case elementType::label:
             needFont = true;
-            hwnd = CreateWindowExW(0, L"STATIC", text.c_str(), WS_VISIBLE | WS_CHILD | SS_LEFT,
-                                   position.x, position.y, position.width, position.height, parentHwnd, (HMENU)elementID, GetModuleHandle(nullptr), nullptr);
+            hwnd = CreateWindowExW(
+                0,
+                L"STATIC",
+                text.c_str(),
+                WS_VISIBLE | WS_CHILD | SS_LEFT,
+                position.x, position.y, position.width, position.height,
+                parentHwnd, (HMENU)elementID, nullptr, nullptr);
             break;
         default:
             debug::logOutput(L"未知元素类型：", (int)type, L"\n");
@@ -58,10 +73,7 @@ namespace danmaku
                     const auto *const labelInfo = (LabelExtraInfo *)extra;
                     // 设置文本颜色
                     SetTextColor(hdcCtrl, labelInfo->textColor);
-                    // 设置背景模式为不透明，这样背景颜色才会生效
-                    SetBkMode(hdcCtrl, OPAQUE);
-                    // 设置背景颜色
-                    SetBkColor(hdcCtrl, labelInfo->backgroundColor);
+                    SetBkMode(hdcCtrl, TRANSPARENT);
                     // 返回与背景颜色匹配的画刷
                     SetDCBrushColor(hdcCtrl, labelInfo->backgroundColor);
                     return (LRESULT)GetStockObject(DC_BRUSH);
