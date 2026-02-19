@@ -13,7 +13,7 @@ SHELL         := cmd
 .SUFFIXES:
 
 ifeq ($(ARCH),32)
-CXX      = g++ -m32
+CXX      = i686-w64-mingw32-g++
 WINDRES  = windres
 WINDRES_FLAG = -F pe-i386 -o
 else
