@@ -33,7 +33,7 @@ namespace danmaku
 
         void recreateMemoryDC();
 
-        static DWORD CALLBACK timerThread(LPVOID param);
+        static DWORD CALLBACK timerThread(void* param);
     public:
         PCWSTR className() const override { return L"Danmaku.WndCls.Overlay"; }
 

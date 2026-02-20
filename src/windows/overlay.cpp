@@ -76,7 +76,7 @@ namespace danmaku
         paint();
     }
 
-    DWORD CALLBACK OverlayWindow::timerThread(LPVOID param)
+    DWORD CALLBACK OverlayWindow::timerThread(void* param)
     {
         const auto self = (OverlayWindow *)param;
         const auto timer = CreateWaitableTimerW(nullptr, FALSE, nullptr);
