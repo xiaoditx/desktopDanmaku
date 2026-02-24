@@ -24,6 +24,7 @@ namespace danmaku
         float itemGap_{};
         float speedFactor_{};
         std::vector<Track> tracks_{};
+        size_t maxValidTrack_{}; // 有弹幕的最后一个轨道索引 + 1
         RECT dirtyRect_{};
         RECT dirtyRectLast_{};
 
@@ -35,8 +36,8 @@ namespace danmaku
 
         bool addDanmaku(DanmakuItem &&item);
 
-        // dt单位为秒
-        void tick(float dt);
+        // dt单位为秒。无项目返回FALSE
+        BOOL tick(float dt);
 
         Gdiplus::Status drawGp(Gdiplus::GpGraphics *g);
 

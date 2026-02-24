@@ -87,8 +87,9 @@ namespace danmaku
             rasterize();
         SelectObject(cdc, bitmap_.dib);
         constexpr BLENDFUNCTION BlendFuncAlpha{AC_SRC_OVER, 0, 255, AC_SRC_ALPHA};
-        return GdiAlphaBlend(dcDst, (int)x, (int)y, (int)width_, (int)height_,
-                             cdc, 0, 0, (int)width_, (int)height_, BlendFuncAlpha);
+        return GdiAlphaBlend(
+            dcDst, int(x + 0.5f), int(y + 0.5f), (int)width_, (int)height_,
+            cdc, 0, 0, (int)width_, (int)height_, BlendFuncAlpha);
     }
 
     void DanmakuItem::invalidateCache()

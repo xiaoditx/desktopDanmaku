@@ -13,6 +13,7 @@ namespace danmaku
             GpPtr<Gdiplus::GpBitmap> bitmap{};
             int width{};
             int height{};
+            UINT touch{};
 
             Bitmap() = default;
             Bitmap(const Bitmap &) = delete;
@@ -24,6 +25,7 @@ namespace danmaku
                 std::swap(bitmap, x.bitmap);
                 std::swap(width, x.width);
                 std::swap(height, x.height);
+                std::swap(touch, x.touch);
             }
             Bitmap &operator=(Bitmap &&x) noexcept
             {
@@ -32,6 +34,7 @@ namespace danmaku
                 std::swap(bitmap, x.bitmap);
                 std::swap(width, x.width);
                 std::swap(height, x.height);
+                std::swap(touch, x.touch);
                 return *this;
             }
 
@@ -56,6 +59,7 @@ namespace danmaku
 
         std::vector<Bitmap> cache_{};
         SrwLock lock_{};
+        UINT version_{};
 
         DanmakuBitmapCache() = default;
 
@@ -78,6 +82,12 @@ namespace danmaku
 
         // 放回空闲列表以重用，可以传递空Bitmap对象
         void free(Bitmap &&bmp);
+
+        void tick()
+        {
+            SrwExclusiveGuard _{lock_};
+            ++version_;
+        }
     };
 }
 

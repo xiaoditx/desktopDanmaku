@@ -7,13 +7,25 @@ namespace danmaku
     {
         {// 查找一个尺寸大于等于请求尺寸的缓存
             SrwExclusiveGuard _{lock_};
-            for (auto it = cache_.begin(); it != cache_.end(); ++it)
+            for (auto it = cache_.begin(); it != cache_.end(); )
             {
                 if (it->width >= width && it->height >= height)
                 {
                     outBmp = std::move(*it);
+                    outBmp.touch = version_;
+                    ZeroMemory(outBmp.dibData, outBmp.width * outBmp.height * 4);
                     cache_.erase(it);
                     return TRUE;
+                }
+                else
+                {
+                    if (it->touch > version_) // 可能溢出
+                        it->touch = version_;
+                    
+                    if (version_ - it->touch > 600)
+                        it = cache_.erase(it);
+                    else
+                        ++it;
                 }
             }
         }
@@ -41,6 +53,7 @@ namespace danmaku
         outBmp = std::move(bmp);
         outBmp.width = width;
         outBmp.height = height;
+        outBmp.touch = version_;
         return TRUE;
     }
 

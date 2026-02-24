@@ -57,6 +57,7 @@ namespace danmaku
         const auto idx = findBestTrack(speed);
         if (idx != InvalidTrack)
         {
+            maxValidTrack_ = std::max(maxValidTrack_, idx + 1);
             auto &dmk = tracks_[idx].items.emplace_back(std::move(item));
             dmk.setSpeed(speed);
             dmk.setX(screenWidth_); // 起点
@@ -65,12 +66,22 @@ namespace danmaku
         return false;
     }
 
-    void DanmakuManager::tick(float dt)
+    BOOL DanmakuManager::tick(float dt)
     {
+        DanmakuBitmapCache::instance().tick();
         // 本次状态更新完成后的矩形
         RECT newRect{INT_MAX, INT_MAX, INT_MIN, INT_MIN};
-        for (auto &track : tracks_)
+        BOOL bUpdated{};
+        size_t maxTrack{};
+        for (size_t i = 0; i < maxValidTrack_; ++i)
         {
+            auto& track = tracks_[i];
+            if (!track.items.empty())
+            {
+                bUpdated = TRUE;
+                maxTrack = i + 1;
+            }
+
             for (auto it = track.items.begin(); it != track.items.end();)
             {
                 it->setX(it->getX() - it->getSpeed() * dt);
@@ -94,9 +105,11 @@ namespace danmaku
                 }
             }
         }
+        maxValidTrack_ = maxTrack;
         // 并上一状态的矩形以便擦除
         UnionRect(&dirtyRect_, &dirtyRectLast_, &newRect);
         dirtyRectLast_ = newRect;
+        return bUpdated;
     }
 
     Gdiplus::Status DanmakuManager::drawGp(Gdiplus::GpGraphics *g)

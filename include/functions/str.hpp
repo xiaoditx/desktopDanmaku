@@ -11,7 +11,7 @@
  * @param str 要统计的宽字符串
  * @return 观感字数
  */
-size_t countVisibleCharacters(const std::wstring& str);
+size_t countVisibleCharacters(std::wstring_view str);
 
 /**
  * 统计字符串的观感字数（重载，支持wchar_t*）

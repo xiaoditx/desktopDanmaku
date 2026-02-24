@@ -1,5 +1,6 @@
 #include "pch.hpp"
 #include "main.hpp"
+#include "functions/randnum.hpp"
 
 // 向前声明
 void init_creatElement(danmaku::BaseWindow &mainWND);
@@ -70,7 +71,8 @@ int WINAPI wWinMain([[maybe_unused]] HINSTANCE hInstance, [[maybe_unused]] HINST
         }
     }
 
-    if(g_mainWindow)delete g_mainWindow; // GDI+关闭前析构
+    if (g_mainWindow)
+        delete g_mainWindow; // GDI+关闭前析构
     g_mainWindow = nullptr;
 
     danmaku::DanmakuBitmapCache::shutdown();
@@ -179,7 +181,7 @@ void init_creatElement(danmaku::BaseWindow &mainWND)
         g_elemEditColor2.value());
 }
 
-Gdiplus::ARGB HexStringToARGB(const std::wstring &hexStr)
+Gdiplus::ARGB hexStringToArgb(const std::wstring &hexStr)
 {
     try
     {
@@ -201,40 +203,63 @@ Gdiplus::ARGB HexStringToARGB(const std::wstring &hexStr)
 void buttonClickHandler()
 {
     // 获取输入框内容
-    wchar_t szBuffer[256]{};
-    GetDlgItemTextW(g_elemEditContent->getParentHwnd(), g_elemEditContent->getID(), szBuffer, _countof(szBuffer));
-    std::wstring content = szBuffer;
-    if (content.empty())
+    wchar_t buffer[256]{};
+    UINT length;
+
+    length = GetDlgItemTextW(
+        g_elemEditColor1->getParentHwnd(),
+        g_elemEditColor1->getID(),
+        buffer, _countof(buffer));
+    Gdiplus::ARGB color1;
+    if (length)
+        color1 = hexStringToArgb({buffer, length});
+    else
+    {
+#ifdef _DEBUG
+        color1 = (random::getInt(0x50, 0xFF) << 24) | random::getInt(0, 0xFFFFFF);
+#else
+        // 默认颜色（白色不透明）
+        color1 = 0xff'ffffff;
+#endif
+    }
+
+    length = GetDlgItemTextW(
+        g_elemEditColor2->getParentHwnd(),
+        g_elemEditColor2->getID(),
+        buffer, _countof(buffer));
+    Gdiplus::ARGB color2;
+    if (length)
+        color2 = hexStringToArgb({buffer, length});
+    else
+    {
+#ifdef _DEBUG
+        color2 = (random::getInt(0x50, 0xFF) << 24) | random::getInt(0, 0xFFFFFF);
+#else
+        // 默认颜色（黑色不透明）
+        color2 = 0xff'000000;
+#endif
+    }
+
+    length = GetDlgItemTextW(
+        g_elemEditContent->getParentHwnd(),
+        g_elemEditContent->getID(),
+        buffer, _countof(buffer));
+    if (!length)
     {
         MessageBoxW(g_mainWindow->getHandle(), L"请输入弹幕内容！", L"提示", MB_OK);
         return;
     }
-    if (countVisibleCharacters(content) > 80)
+    if (countVisibleCharacters({buffer, length}) > 80)
     {
         MessageBoxW(g_mainWindow->getHandle(), L"弹幕内容不能超过80个字符！", L"提示", MB_OK);
         return;
-    }
-
-    GetDlgItemTextW(g_elemEditColor1->getParentHwnd(), g_elemEditColor1->getID(), szBuffer, _countof(szBuffer));
-    std::wstring color1 = szBuffer;
-    if (color1.empty())
-    {
-        // 默认颜色（白色不透明）
-        color1 = L"0xffffffff";
-    }
-    GetDlgItemTextW(g_elemEditColor2->getParentHwnd(), g_elemEditColor2->getID(), szBuffer, _countof(szBuffer));
-    std::wstring color2 = szBuffer;
-    if (color2.empty())
-    {
-        // 默认颜色（黑色不透明）
-        color2 = L"0xff000000";
     }
 
     // 弹幕发送逻辑
     if (g_overlayWindow)
     {
         // 添加新弹幕
-        g_overlayWindow->addDanmaku(content, 40, HexStringToARGB(color1), HexStringToARGB(color2));
+        g_overlayWindow->addDanmaku({buffer, length}, 40, color1, color2);
     }
 
     // 发送后清空输入框

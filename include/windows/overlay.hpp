@@ -12,7 +12,8 @@ namespace danmaku
     class OverlayWindow : public BaseWindow
     {
     private:
-        constexpr static UINT MessageClockTick = WM_USER + 3; // (毫秒计的间隔, 0)
+        // 是否仍有弹幕 (毫秒计的间隔, 0)
+        constexpr static UINT MessageClockTick = WM_USER + 3;
 
         // 内存DC，分层窗口内容源
         HDC cdc_{};
@@ -26,6 +27,7 @@ namespace danmaku
 
         BOOL timerThreadExit_{};
         HANDLE timerThreadHandle_{};
+        HANDLE timerEvent_{}; // 避免无弹幕时空转
 
         DanmakuManager danmakuMgr_{};
 
@@ -33,7 +35,8 @@ namespace danmaku
 
         void recreateMemoryDC();
 
-        static DWORD CALLBACK timerThread(void* param);
+        static DWORD CALLBACK timerThread(void *param);
+
     public:
         PCWSTR className() const override { return L"Danmaku.WndCls.Overlay"; }
 
@@ -54,13 +57,7 @@ namespace danmaku
                         Gdiplus::ARGB fillColor, Gdiplus::ARGB borderColor)
         {
             danmakuMgr_.addDanmaku(DanmakuItem{text, emSize, fillColor, borderColor});
-            paint();
-        }
-
-        // 将当前状态推进指定的时间并重画
-        void tick(float dt)
-        {
-            danmakuMgr_.tick(dt);
+            SetEvent(timerEvent_);
             paint();
         }
     };

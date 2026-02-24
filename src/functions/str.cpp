@@ -35,7 +35,7 @@ bool isCombiningMark(wchar_t c) {
 /**
  * 统计字符串的观感字数
  */
-size_t countVisibleCharacters(const std::wstring& str) {
+size_t countVisibleCharacters(std::wstring_view str) {
     size_t count = 0;
     size_t length = str.length();
     

@@ -4,8 +4,8 @@
 
 using namespace Gdiplus::DllExports;
 
-constexpr UINT TimerWorldTickInterval = 14;    // 定时器间隔
-constexpr UINT TimerWorldTickMinInterval = 12; // TimerWorldTickInterval减去误差
+// constexpr UINT TimerWorldTickInterval = 14;    // 定时器间隔
+constexpr UINT TimerWorldTickMinInterval = 14; // TimerWorldTickInterval减去误差
 
 namespace danmaku
 {
@@ -76,27 +76,45 @@ namespace danmaku
         paint();
     }
 
-    // 不是我想，但我的格式化插件就是不允许*挨着void（/(ㄒoㄒ)/）
     DWORD CALLBACK OverlayWindow::timerThread(void *param)
     {
         const auto self = (OverlayWindow *)param;
         const auto timer = CreateWaitableTimerW(nullptr, FALSE, nullptr);
+        LONGLONG freq;
+        QueryPerformanceFrequency((LARGE_INTEGER *)&freq);
+        freq /= 1000;
 
-        ULONGLONG lastTick = GetTickCount64(); // 上一帧的开始时刻
+        WaitForSingleObject(self->timerEvent_, INFINITE);
+
+        LONGLONG counter, now;
+        QueryPerformanceCounter((LARGE_INTEGER *)&counter);
+        BOOL active;
         while (!self->timerThreadExit_)
         {
-            const auto now = GetTickCount64(); // 帧开始时刻
-            if (const auto param = WPARAM(now - lastTick))
-                SendMessageW(self->hwnd, MessageClockTick, param, 0);
+            QueryPerformanceCounter((LARGE_INTEGER *)&now);
+            if (const auto param = WPARAM((now - counter) / freq))
+                active = (BOOL)SendMessageW(self->hwnd, MessageClockTick, param, 0);
+            else
+                active = TRUE;
 
-            const auto delta = GetTickCount64() - lastTick; // SendMessageW消耗的时间
-            lastTick = now;
-            if (delta < TimerWorldTickMinInterval) // 延时以消耗剩余时间
+            LONGLONG l;
+            QueryPerformanceCounter((LARGE_INTEGER *)&l);
+            const auto delta = (l - counter) / freq; // SendMessageW消耗的时间
+            counter = now;
+            if (active)
             {
-                LARGE_INTEGER dueTime;
-                dueTime.QuadPart = -((TimerWorldTickMinInterval - delta) * 10000ll);
-                SetWaitableTimer(timer, &dueTime, 0, nullptr, nullptr, FALSE);
-                WaitForSingleObject(timer, INFINITE);
+                if (delta < TimerWorldTickMinInterval) // 延时以消耗剩余时间
+                {
+                    LARGE_INTEGER dueTime;
+                    dueTime.QuadPart = -((TimerWorldTickMinInterval - delta) * 10000ll);
+                    SetWaitableTimer(timer, &dueTime, 0, nullptr, nullptr, FALSE);
+                    WaitForSingleObject(timer, INFINITE);
+                }
+            }
+            else
+            {
+                WaitForSingleObject(self->timerEvent_, INFINITE);
+                QueryPerformanceCounter((LARGE_INTEGER *)&counter);
             }
         }
         CloseHandle(timer);
@@ -159,18 +177,24 @@ namespace danmaku
         switch (uMsg)
         {
         case MessageClockTick:
-            tick(wParam / 1000.f);
-            break;
+        {
+            const auto b = danmakuMgr_.tick(wParam / 1000.f);
+            if (!b)
+                ResetEvent(timerEvent_);
+            paint();
+            return b;
+        }
         case WM_CREATE:
             // TEMP 测试
             danmakuMgr_.setLineHeight(40);
             danmakuMgr_.setLineGap(10);
-            danmakuMgr_.setDuration(5.f);
+            danmakuMgr_.setDuration(6.f);
             danmakuMgr_.setItemGap(10);
             danmakuMgr_.setSpeedFactor(1.f);
             layoutFullscreen();
             // 启动定时线程
             assert(!timerThreadHandle_);
+            timerEvent_ = CreateEventW(nullptr, TRUE, FALSE, nullptr);
             timerThreadExit_ = FALSE;
             timerThreadHandle_ = CreateThread(nullptr, 0, timerThread, this, 0, nullptr);
             break;
@@ -191,6 +215,7 @@ namespace danmaku
             if (timerThreadHandle_)
             {
                 timerThreadExit_ = TRUE;
+                SetEvent(timerEvent_);
                 // 设置超时时间，避免永久阻塞
                 DWORD waitResult = WaitForSingleObject(timerThreadHandle_, 5000); // 5秒超时
                 if (waitResult == WAIT_TIMEOUT)
@@ -200,6 +225,12 @@ namespace danmaku
                 }
                 CloseHandle(timerThreadHandle_);
                 timerThreadHandle_ = nullptr;
+            }
+
+            if (timerEvent_)
+            {
+                CloseHandle(timerEvent_);
+                timerEvent_ = nullptr;
             }
 
             // 清理资源：删除内存DC、位图和GDI+图形对象
