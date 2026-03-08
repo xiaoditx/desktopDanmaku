@@ -16,7 +16,8 @@ namespace danmaku
         float height_{};
         float emSize_{};
         float x_{};
-        float speed_{}; // 像素/秒
+        float speed_{};    // 像素/秒
+        long long time_{}; // 仅对于定时出现的弹幕有效
     public:
         // 允许重复调用
         void rasterize();
@@ -61,6 +62,9 @@ namespace danmaku
         float getHeight() const { return height_; }
         float getX() const { return x_; }
         float getSpeed() const { return speed_; }
+
+        // 友元JSON解析函数声明
+        friend std::vector<DanmakuItem> ReadDanmakuArrayFromJsonFile(const std::wstring &filename);
     };
 }
 

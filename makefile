@@ -45,6 +45,7 @@ BIN       := $(BUILD_DIR)/danmaku.exe
 PCH_SRC	  := $(INC_DIR)/pch.hpp
 PCH_OUT_DIR := $(BUILD_DIR)/pch
 PCH_OUT	  := $(PCH_OUT_DIR)/pch.gch
+LIB_DIR   := libs
 
 # 源文件列表 
 CXX_SRCS := $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(SRC_DIR)/windows/*.cpp) $(wildcard $(SRC_DIR)/functions/*.cpp) $(wildcard $(SRC_DIR)/danmaku/*.cpp)
@@ -74,7 +75,7 @@ $(OBJ_DIR)/manifest.o: src/list.rc
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR) $(PCH_OUT)
 	@echo 正在将源码文件 $< 编译到 $@
 	@if not exist "$(dir $@)" mkdir "$(dir $@)"
-	@$(CXX) $(CXXFLAGS) -g -I$(INC_DIR) -I$(PCH_OUT_DIR) -MMD -MP -c $< -o $@
+	@$(CXX) $(CXXFLAGS) -g -I$(INC_DIR) -I$(PCH_OUT_DIR) -I$(LIB_DIR) -MMD -MP -c $< -o $@
 
 $(PCH_OUT_DIR):
 	@if not exist "$(PCH_OUT_DIR)" mkdir "$(PCH_OUT_DIR)"

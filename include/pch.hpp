@@ -23,6 +23,7 @@
 
 #include "functions/gpptr.hpp"
 #include "functions/srwlk.hpp"
+#include "functions/files.hpp"
 
 using namespace Gdiplus::DllExports;
 
