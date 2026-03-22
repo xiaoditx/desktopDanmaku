@@ -1,5 +1,8 @@
 name: MinGW Build Test (4 Configurations)
 
+#env:
+#  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+
 on:
   # 触发条件1：任何PR提交时触发
   pull_request:
@@ -20,7 +23,7 @@ jobs:
     steps:
       # 步骤1：拉取仓库代码
       - name: Checkout repository code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       # 步骤2：安装ezwinports版本的make 4.4.1（通过winget）
       - name: Install make 4.4.1 (ezwinports)

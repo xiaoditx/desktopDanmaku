@@ -6,7 +6,7 @@
 
 # 桌面弹幕 - DesktopDanmaku
 
-V 0.0.0.0 开发中
+V 1.0.1.0 标准版
 
 <br>
 <div>
