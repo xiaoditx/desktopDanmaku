@@ -51,8 +51,12 @@ LIB_DIR   := libs
 CXX_SRCS := $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(SRC_DIR)/windows/*.cpp) $(wildcard $(SRC_DIR)/functions/*.cpp) $(wildcard $(SRC_DIR)/danmaku/*.cpp)
 #$(wildcard $(SRC_DIR)/.../*.cpp)
 
+# C源文件（yyjson库）
+C_SRCS := $(LIB_DIR)/yyjson/yyjson.c
+
 # 自动推导对象 
 CXX_OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(CXX_SRCS))
+C_OBJS  := $(OBJ_DIR)/yyjson.o
 
 # 默认目标（64位debug模式）
 .PHONY: all clean help run release release64 release32 installer installer64 installer32
@@ -63,7 +67,7 @@ debug:
 	@$(MAKE) DEBUG=1 all
 
 # 链接 
-$(BIN): $(CXX_OBJS) $(OBJ_DIR)/manifest.o
+$(BIN): $(CXX_OBJS) $(C_OBJS) $(OBJ_DIR)/manifest.o
 	@echo 正在链接生成可执行文件 $@ ...
 	@$(CXX) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
@@ -76,6 +80,11 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR) $(PCH_OUT)
 	@echo 正在将源码文件 $< 编译到 $@
 	@if not exist "$(dir $@)" mkdir "$(dir $@)"
 	@$(CXX) $(CXXFLAGS) -g -I$(INC_DIR) -I$(PCH_OUT_DIR) -I$(LIB_DIR) -MMD -MP -c $< -o $@
+
+# 编译C文件（yyjson）
+$(OBJ_DIR)/yyjson.o: $(LIB_DIR)/yyjson/yyjson.c | $(OBJ_DIR)
+	@echo 正在编译C文件 $< ...
+	@$(CXX) $(CXXFLAGS) -I$(LIB_DIR) -c $< -o $@
 
 $(PCH_OUT_DIR):
 	@if not exist "$(PCH_OUT_DIR)" mkdir "$(PCH_OUT_DIR)"
