@@ -1,6 +1,8 @@
 #ifndef DEBUG_HPP
 #define DEBUG_HPP
 
+#include "pch.hpp"
+
 namespace debug
 {
     wchar_t *getFullDebugFilePath();

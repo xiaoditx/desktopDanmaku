@@ -1,6 +1,8 @@
 #ifndef GPPTR_HPP
 #define GPPTR_HPP
 
+#include "pch.hpp"
+
 template <class T>
 class GpPtr
 {

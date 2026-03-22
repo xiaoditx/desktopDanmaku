@@ -1,6 +1,8 @@
 #ifndef RANDNUM_H
 #define RANDNUM_H
 
+#include "pch.hpp"
+
 // 随机数生成命名空间
 namespace random
 {

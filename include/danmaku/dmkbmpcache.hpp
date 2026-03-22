@@ -1,6 +1,8 @@
 #ifndef DANMAKU_DMKBMPCACHE_HPP
 #define DANMAKU_DMKBMPCACHE_HPP
 
+#include "pch.hpp"
+
 namespace danmaku
 {
     class DanmakuBitmapCache

@@ -1,6 +1,7 @@
 #ifndef DANMAKU_DMKITEM_HPP
 #define DANMAKU_DMKITEM_HPP
 
+#include "pch.hpp"
 #include "dmkbmpcache.hpp"
 
 namespace danmaku

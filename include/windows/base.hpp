@@ -1,6 +1,8 @@
 #ifndef DANMAKU_BASE_WINDOW_HPP
 #define DANMAKU_BASE_WINDOW_HPP
 
+#include "pch.hpp"
+
 namespace danmaku
 {
     /**

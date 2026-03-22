@@ -1,6 +1,7 @@
 #ifndef DANMAKU_OVERLAY_WINDOW_HPP
 #define DANMAKU_OVERLAY_WINDOW_HPP
 
+#include "pch.hpp"
 #include "base.hpp"
 #include "elements.hpp"
 #include "font.hpp"
