@@ -6,18 +6,18 @@
 #include "debug.hpp"
 
 /*
-json文件示例：
+json文件示例：(ARGB)
 
 [
     {
-        "fillColor": "#489BFF13",
-        "borderColor": 4294901760,
+        "fillColor": "#ff9BFF13",
+        "borderColor": "#ff000000",
         "text": "Ciallo",
         "time": 1234567890
     },
     {
         "fillColor": "#4855B7FF",
-        "borderColor": 4286611584,
+        "borderColor": "#ffB700FF",
         "text": "World",
         "time": 9876543210
     }
@@ -110,7 +110,7 @@ namespace danmaku
 
             // 读取 borderColor
             val = yyjson_obj_get(item, "borderColor");
-            if (val && yyjson_is_uint(val))
+            if (val)
             {
                 obj.borderColor_ = hexStringToArgb(Utf8ToWideString(yyjson_get_str(val)));
             }

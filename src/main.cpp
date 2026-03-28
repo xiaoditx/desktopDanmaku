@@ -1,11 +1,9 @@
-#include "pch.hpp"
 #include "main.hpp"
-#include "functions/randnum.hpp"
-#include "functions/jsonReader.hpp"
 
 // 向前声明
 void init_creatElement(danmaku::BaseWindow &mainWND);
 void buttonClickHandler();
+void jsonButtonClickHandler();
 
 // 全局 GDI+ token
 ULONG_PTR g_gpToken{};
@@ -17,6 +15,10 @@ std::optional<danmaku::Element> g_elemLabelAppName;
 std::optional<danmaku::Element> g_elemLabelPrompt;
 std::optional<danmaku::Element> g_elemEditContent;
 std::optional<danmaku::Element> g_elemButton;
+std::optional<danmaku::Element> g_elemJsonLabel;
+std::optional<danmaku::Element> g_elemJsonButton;
+std::optional<danmaku::Element> g_elemJsonEdit;
+// std::optional<danmaku::Element> g_elemChoiceFile;
 // ↓ 这些组件后期将会禁用
 std::optional<danmaku::Element> g_elemLabelColor1;
 std::optional<danmaku::Element> g_elemEditColor1;
@@ -99,6 +101,11 @@ danmaku::ButtonExtraInfo bei{
     nullptr, // 暂无
     nullptr  // 暂无
 };
+danmaku::ButtonExtraInfo bei_json{
+    jsonButtonClickHandler,
+    nullptr, // 暂无
+    nullptr  // 暂无
+};
 
 void init_creatElement(danmaku::BaseWindow &mainWND)
 {
@@ -176,6 +183,33 @@ void init_creatElement(danmaku::BaseWindow &mainWND)
         defaultFont,
         nullptr);
 
+    // 从JSON文件加载弹幕的标签
+    g_elemJsonLabel.emplace(
+        mainWND.getHandle(),
+        danmaku::elementType::label,
+        danmaku::rect{5, 160, 120, 28},
+        L"JSON文件",
+        defaultFont,
+        &lei);
+
+    // 从JSON文件加载弹幕的按钮
+    g_elemJsonButton.emplace(
+        mainWND.getHandle(),
+        danmaku::elementType::button,
+        danmaku::rect{90, 160, 100, 28},
+        L"读取文件",
+        defaultFont,
+        &bei_json);
+
+    // 从JSON文件加载弹幕的输入框
+    g_elemJsonEdit.emplace(
+        mainWND.getHandle(),
+        danmaku::elementType::edit,
+        danmaku::rect{200, 160, 270, 28},
+        L"",
+        defaultFont,
+        nullptr);
+
     // 创建元素（通过 .value() 获取引用）
     danmaku::createElements(
         g_elemLabelAppName.value(),
@@ -185,7 +219,12 @@ void init_creatElement(danmaku::BaseWindow &mainWND)
         g_elemLabelColor1.value(),
         g_elemEditColor1.value(),
         g_elemLabelColor2.value(),
-        g_elemEditColor2.value());
+        g_elemEditColor2.value(),
+        g_elemJsonLabel.value(),
+        g_elemJsonButton.value(),
+        g_elemJsonEdit.value()
+        // ,g_elemChoiceFile.value(),
+    );
 }
 
 // 按钮按下事件处理函数
@@ -259,5 +298,50 @@ void buttonClickHandler()
     }
 
     // 发送后清空输入框
-    // SetDlgItemTextW(g_elemEditContent->getParentHwnd(), g_elemEditContent->getID(), L"");
+    // todo 写一个选择框控制是否清空
+    // if(checkbox.choice == false)
+    SetDlgItemTextW(g_elemEditContent->getParentHwnd(), g_elemEditContent->getID(), L"");
+}
+
+void addDanmakuThread();
+void jsonButtonClickHandler()
+{
+    std::thread addThread(addDanmakuThread);
+    addThread.detach();
+}
+
+void addDanmakuThread()
+{
+    // 获取输入框内容
+    wchar_t buffer[MAX_PATH]{};
+    UINT length;
+
+    // 获取弹幕内容输入框的文本
+    length = GetDlgItemTextW(
+        g_elemJsonEdit->getParentHwnd(),
+        g_elemJsonEdit->getID(),
+        buffer, _countof(buffer));
+    if (!length)
+    {
+        // 如果输入框为空，弹出提示并返回
+        MessageBoxW(g_mainWindow->getHandle(), L"请输入弹幕内容！", L"提示", MB_OK);
+        return;
+    }
+
+    auto danmakuArr = danmaku::ReadDanmakuArrayFromJsonFile({buffer, length});
+    if (danmakuArr.empty())
+    {
+        // 如果解析失败或数组为空，弹出提示并返回
+        MessageBoxW(g_mainWindow->getHandle(), L"未能从JSON文件加载弹幕！请检查文件路径和内容格式。", L"提示", MB_OK);
+        return;
+    }
+    for (const auto &item : danmakuArr)
+    {
+        if (g_overlayWindow)
+        {
+            g_overlayWindow->addDanmaku(item.getText(), item.getEmSize(), item.getFillColor(), item.getBorderColor());
+        }
+        // todo 应用time参数，定时显示
+        Sleep(100); // 模拟处理延迟
+    }
 }

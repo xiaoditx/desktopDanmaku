@@ -57,6 +57,10 @@ namespace danmaku
         void addDanmaku(std::wstring_view text, float emSize,
                         Gdiplus::ARGB fillColor, Gdiplus::ARGB borderColor)
         {
+            // todo 不让这个方法接受大小参数，而是由尺寸枚举量控制
+            if (emSize <= 0)
+                emSize = 40; // 默认40像素字号
+            debug::logOutput(L"addDanmaku called with text: ", text, L", emSize: ", emSize, L", fillColor: ", fillColor, L", borderColor: ", borderColor, L"\n");
             danmakuMgr_.addDanmaku(DanmakuItem{text, emSize, fillColor, borderColor});
             SetEvent(timerEvent_);
             paint();
