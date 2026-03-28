@@ -1,6 +1,7 @@
 #include "pch.hpp"
 #include "main.hpp"
 #include "functions/randnum.hpp"
+#include "functions/jsonReader.hpp"
 
 // 向前声明
 void init_creatElement(danmaku::BaseWindow &mainWND);
@@ -62,6 +63,8 @@ int WINAPI wWinMain([[maybe_unused]] HINSTANCE hInstance, [[maybe_unused]] HINST
 
     // 初始化元素
     init_creatElement(*g_mainWindow);
+
+    // danmaku::ReadDanmakuArrayFromJsonFile(L"./test.json");
 
     // 消息循环
     MSG msg;
@@ -183,27 +186,6 @@ void init_creatElement(danmaku::BaseWindow &mainWND)
         g_elemEditColor1.value(),
         g_elemLabelColor2.value(),
         g_elemEditColor2.value());
-}
-
-// todo: 把这个函数挪到别的文件去，最好是functions文件夹（我现在有点懒）
-// 十六进制字符串到ARGB颜色值的转换函数
-Gdiplus::ARGB hexStringToArgb(const std::wstring &hexStr)
-{
-    try
-    {
-        unsigned long value = std::stoul(hexStr, nullptr, 16);
-        return static_cast<Gdiplus::ARGB>(value);
-    }
-    catch (const std::invalid_argument &)
-    {
-        // 字符串不包含有效数字
-        return 0xFF000000; // 默认返回黑色不透明
-    }
-    catch (const std::out_of_range &)
-    {
-        // 数值超出 unsigned long 范围
-        return 0xFFFFFFFF; // 返回白色不透明
-    }
 }
 
 // 按钮按下事件处理函数

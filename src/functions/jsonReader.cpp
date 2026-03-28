@@ -3,29 +3,42 @@
 #include <cstdint>
 #include <stdexcept>
 #include "danmaku/dmkitem.hpp"
+#include "debug.hpp"
 
 /*
 json文件示例：
 
 [
-  {
-    "fillColor": 4278190335,
-    "borderColor": 4294901760,
-    "text": "Hello",
-    "time": 1234567890
-  },
-  {
-    "fillColor": 4281545523,
-    "borderColor": 4286611584,
-    "text": "World",
-    "time": 9876543210
-  }
+    {
+        "fillColor": "#489BFF13",
+        "borderColor": 4294901760,
+        "text": "Ciallo",
+        "time": 1234567890
+    },
+    {
+        "fillColor": "#4855B7FF",
+        "borderColor": 4286611584,
+        "text": "World",
+        "time": 9876543210
+    }
 ]
 
 */
 
 namespace danmaku
 {
+    // yyjson文档智能指针
+    struct yyjson_doc_deleter
+    {
+        void operator()(yyjson_doc *doc) const noexcept
+        {
+            if (doc)
+                yyjson_doc_free(doc);
+        }
+    };
+    using yyjson_doc_ptr = std::unique_ptr<yyjson_doc, yyjson_doc_deleter>;
+
+    // 辅助函数：将 UTF-8 字符串转换为宽字符串（std::wstring）
     static std::wstring Utf8ToWideString(const char *utf8)
     {
         if (!utf8)
@@ -38,6 +51,7 @@ namespace danmaku
         return result;
     }
 
+    // 辅助函数：将宽字符串（std::wstring）转换为 UTF-8 字符串
     static std::string WideStringToUtf8(const std::wstring &wstr)
     {
         if (wstr.empty())
@@ -50,31 +64,31 @@ namespace danmaku
         return result;
     }
 
+    /**
+     * @brief 从 JSON 文件中读取弹幕数组
+     * @param filename JSON 文件路径（宽字符串）
+     * @return 包含 DanmakuItem 对象的动态数组
+     */
     std::vector<DanmakuItem> ReadDanmakuArrayFromJsonFile(const std::wstring &filename)
     {
         // 将宽字符串路径转换为 UTF-8
         std::string utf8Path = WideStringToUtf8(filename);
 
         // 使用 yyjson 读取文件
-        yyjson_doc *doc = yyjson_read_file(utf8Path.c_str(), 0, nullptr, nullptr);
+        yyjson_doc_ptr doc(yyjson_read_file(utf8Path.c_str(), 0, nullptr, nullptr));
         if (!doc)
         {
-            throw std::runtime_error("Failed to read JSON file: " + utf8Path);
+            throw std::runtime_error("读取JSON文件失败: " + utf8Path);
         }
 
-        // 确保 doc 会在函数退出时释放
-        auto doc_cleanup = [&]
-        { yyjson_doc_free(doc); };
-
-        // 2. 获取根节点，应为数组
-        yyjson_val *root = yyjson_doc_get_root(doc);
+        // 获取根节点，应为数组
+        yyjson_val *root = yyjson_doc_get_root(doc.get());
         if (!yyjson_is_arr(root))
         {
-            doc_cleanup();
-            throw std::runtime_error("JSON root is not an array");
+            throw std::runtime_error("JSON文件根节点不是数组: " + utf8Path);
         }
 
-        // 3. 遍历数组
+        // 遍历数组
         std::vector<DanmakuItem> result;
         size_t idx, max;
         yyjson_val *item;
@@ -87,18 +101,18 @@ namespace danmaku
 
             DanmakuItem obj; // 临时对象，通过友元直接设置私有成员
 
-            // 读取 fillColor (期望为整数)
+            // 读取 fillColor
             yyjson_val *val = yyjson_obj_get(item, "fillColor");
-            if (val && yyjson_is_uint(val))
+            if (val)
             {
-                obj.fillColor_ = static_cast<Gdiplus::ARGB>(yyjson_get_uint(val));
-            } // 若缺失或类型错误，保留默认值（0）
+                obj.fillColor_ = hexStringToArgb(Utf8ToWideString(yyjson_get_str(val)));
+            } // 若缺失，保留默认值
 
             // 读取 borderColor
             val = yyjson_obj_get(item, "borderColor");
             if (val && yyjson_is_uint(val))
             {
-                obj.borderColor_ = static_cast<Gdiplus::ARGB>(yyjson_get_uint(val));
+                obj.borderColor_ = hexStringToArgb(Utf8ToWideString(yyjson_get_str(val)));
             }
 
             // 读取 text (UTF-8 字符串 -> std::wstring)
@@ -118,7 +132,6 @@ namespace danmaku
             result.push_back(std::move(obj));
         }
 
-        doc_cleanup();
         return result;
     }
 }

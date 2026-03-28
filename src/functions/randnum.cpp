@@ -3,14 +3,17 @@
 
 namespace random
 {
+    // 基于 PCG 算法的伪随机数生成器
     class RmPcg32
     {
     public:
         using TSeed = UINT64;
 
+        // 乘数和增量
         constexpr static UINT64 Multiplier = 6364136223846793005ull;
         constexpr static UINT64 Increment = 1442695040888963407ull;
 
+        // 默认种子，使用系统时间戳
         static UINT64 DefaultSeed() noexcept { return GetTickCount64(); }
 
     private:
@@ -19,6 +22,7 @@ namespace random
     public:
         constexpr RmPcg32(UINT64 Seed = GetTickCount64()) noexcept : State{Seed + Increment} {}
 
+        // 生成一个随机的32位无符号整数
         constexpr UINT Next32() noexcept
         {
             const auto Old = State;
@@ -28,6 +32,7 @@ namespace random
             return XorShifted >> Rot | XorShifted << (-Rot & 31);
         }
 
+        // 重新设置种子，使用新的种子值初始化状态
         constexpr void Seed(UINT64 Seed) noexcept { State = Seed + Increment; }
     };
 
