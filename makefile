@@ -67,11 +67,16 @@ debug:
 	@$(MAKE) DEBUG=1 all
 
 # 链接 
-$(BIN): $(CXX_OBJS) $(C_OBJS) $(OBJ_DIR)/manifest.o
+$(BIN): $(CXX_OBJS) $(C_OBJS) $(OBJ_DIR)/manifest.o $(OBJ_DIR)/appInfo.o
 	@echo 正在链接生成可执行文件 $@ ...
 	@$(CXX) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
+# 资源文件
 $(OBJ_DIR)/manifest.o: src/list.rc
+	@echo 正在编译资源文件 $< ...
+	@$(WINDRES) $(WINDRES_FLAG) $@ $<
+
+$(OBJ_DIR)/appInfo.o: resource/appInfo.rc
 	@echo 正在编译资源文件 $< ...
 	@$(WINDRES) $(WINDRES_FLAG) $@ $<
 

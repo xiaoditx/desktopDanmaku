@@ -1,0 +1,33 @@
+#include <winver.h>
+#define rcVersion 1, 0, 2, 0                  // 资源版本号
+#define appVersion "1.0.2.0"                  // 版本号
+
+// 版本信息
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION     rcVersion  // 文件版本 
+PRODUCTVERSION  rcVersion  // 产品版本 
+FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
+FILEFLAGS       0x0      // 0=正式版, VS_FF_DEBUG=调试版
+FILEOS          VOS_NT_WINDOWS32
+FILETYPE        VFT_APP  //应用程序类型 
+FILESUBTYPE     VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080404B0"  // 简体中文(0x0804) + Unicode(1200)
+        BEGIN
+            VALUE "CompanyName",        "小狄同学呀"
+            VALUE "FileDescription",    "在桌面上释放弹幕！"
+            VALUE "FileVersion",        appVersion
+            VALUE "InternalName",       "danmaku.exe"
+            VALUE "LegalCopyright",     " WTFPL 开源"
+            VALUE "OriginalFilename",   "danmaku.exe"
+            VALUE "ProductName",        "desktopDanmaku"
+            VALUE "ProductVersion",     appVersion
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0804, 1200  // 简体中文(0x0804)
+    END
+END
