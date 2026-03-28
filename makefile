@@ -1,7 +1,7 @@
 # 设置代码页为UTF-8以支持中文路径和输出
 $(shell chcp 65001 >nul)
 
-MAKEFLAGS += -j --output-sync=target
+MAKEFLAGS += -j --output-sync=target --no-print-directory
 
 DEBUG ?= 1
 
