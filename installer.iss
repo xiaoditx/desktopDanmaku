@@ -2,7 +2,7 @@
 ; 有关创建 Inno Setup 脚本文件的详细资料请查阅帮助文档！
 
 #define MyAppName "桌面弹幕 - DesktopDanmaku"
-#define MyAppVersion "1.0.2.0"
+#define MyAppVersion "1.0.2.1"
 ; 架构控制
 #ifndef MyAppArch ;64或32，默认64
   #define MyAppArch "64"

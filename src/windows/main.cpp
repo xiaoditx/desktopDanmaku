@@ -1,5 +1,7 @@
 #include "pch.hpp"
 #include "windows/main.hpp"
+// 这个是抄的[xiaoditx/keyBonk]，懒得动了，就这样吧
+#define IDI_MY_ICON 104
 
 namespace danmaku
 {
@@ -24,6 +26,8 @@ namespace danmaku
         dm_wc.hCursor = LoadCursorW(nullptr, IDC_ARROW);
         dm_wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
         dm_wc.lpszMenuName = nullptr;
+        dm_wc.hIcon = (HICON)LoadImage(this->instance, MAKEINTRESOURCE(IDI_MY_ICON), IMAGE_ICON, 64, 64, 0);
+        dm_wc.hIconSm = (HICON)LoadImage(this->instance, MAKEINTRESOURCE(IDI_MY_ICON), IMAGE_ICON, 64, 64, 0); // 小图标（窗口标题栏）
         dm_wc.lpszClassName = L"Danmaku.WndCls.Main";
         // dm_wc.hIcon = nullptr;//
         // dm_wc.hIconSm = nullptr;//

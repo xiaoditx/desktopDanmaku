@@ -1,7 +1,12 @@
 #pragma code_page(65001)
 #include <winver.h>
-#define rcVersion 1, 0, 2, 0                  // 资源版本号
-#define appVersion "1.0.2.0"                  // 版本号
+#define rcVersion 1, 0, 2, 1                  // 资源版本号
+#define appVersion "1.0.2.1"                  // 版本号
+#define IDI_MY_ICON 104
+
+// 图标资源
+// IDI_APPLICATION ICON "./icon/for_light.ico"
+IDI_MY_ICON ICON "./icon/for_light.ico"
 
 // 版本信息
 VS_VERSION_INFO VERSIONINFO
@@ -18,7 +23,7 @@ BEGIN
         BLOCK "080404B0"  // 简体中文(0x0804) + Unicode(1200)
         BEGIN
             VALUE "CompanyName",        "小狄同学呀"
-            VALUE "FileDescription",    "在桌面上释放弹幕！"
+            VALUE "FileDescription",    "弹幕？不不，这是桌面弹幕。不如试试让它们在你的电脑上飘过，假装他们是电子世界的云朵"
             VALUE "FileVersion",        appVersion
             VALUE "InternalName",       "danmaku.exe"
             VALUE "LegalCopyright",     " WTFPL 开源"

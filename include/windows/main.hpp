@@ -12,13 +12,16 @@ namespace danmaku
     private:
         // dm: danmaku main
         WNDCLASSEX dm_wc{};
+        HINSTANCE instance{};
         OverlayWindow overlay{};
+
     public:
         PCWSTR className() const override { return dm_wc.lpszClassName; }
         // 处理窗口消息
         LRESULT handleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) override;
         // 构造函数和析构函数
         MainWindow() = default;
+        MainWindow(HINSTANCE hInstance) : instance(hInstance) {}
         // 使用默认析构函数
         ~MainWindow() = default;
         // 创建和显示函数

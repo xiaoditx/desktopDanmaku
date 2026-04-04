@@ -58,7 +58,7 @@ int WINAPI wWinMain([[maybe_unused]] HINSTANCE hInstance, [[maybe_unused]] HINST
     danmaku::DanmakuBitmapCache::startup();
 
     assert(!g_mainWindow);
-    g_mainWindow = new danmaku::MainWindow{};
+    g_mainWindow = new danmaku::MainWindow{hInstance};
     g_mainWindow->create(L"桌面弹幕", 500, 300).show();
     // 获取overlayWindow实例的指针
     g_overlayWindow = &g_mainWindow->getOverlay();
