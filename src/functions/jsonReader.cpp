@@ -58,7 +58,7 @@ namespace danmaku
             return {};
         int len = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
         if (len <= 0)
-            throw std::runtime_error("Failed to convert wide string to UTF-8");
+            throw std::runtime_error("字符串转换失败：无法转换宽字符串为UTF-8");
         std::string result(len - 1, '\0');
         WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, result.data(), len, nullptr, nullptr);
         return result;
@@ -73,6 +73,11 @@ namespace danmaku
     {
         // 将宽字符串路径转换为 UTF-8
         std::string utf8Path = WideStringToUtf8(filename);
+
+        if (!FileExists(filename.c_str()))
+        {
+            throw std::runtime_error("JSON文件不存在: " + utf8Path);
+        }
 
         // 使用 yyjson 读取文件
         yyjson_doc_ptr doc(yyjson_read_file(utf8Path.c_str(), 0, nullptr, nullptr));

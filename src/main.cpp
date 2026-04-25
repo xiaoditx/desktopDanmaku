@@ -327,21 +327,45 @@ void addDanmakuThread()
         MessageBoxW(g_mainWindow->getHandle(), L"请输入弹幕内容！", L"提示", MB_OK);
         return;
     }
-
-    auto danmakuArr = danmaku::ReadDanmakuArrayFromJsonFile({buffer, length});
-    if (danmakuArr.empty())
+    try
     {
-        // 如果解析失败或数组为空，弹出提示并返回
-        MessageBoxW(g_mainWindow->getHandle(), L"未能从JSON文件加载弹幕！请检查文件路径和内容格式。", L"提示", MB_OK);
-        return;
-    }
-    for (const auto &item : danmakuArr)
-    {
-        if (g_overlayWindow)
+        auto danmakuArr = danmaku::ReadDanmakuArrayFromJsonFile({buffer, length});
+        if (danmakuArr.empty())
         {
-            g_overlayWindow->addDanmaku(item.getText(), item.getEmSize(), item.getFillColor(), item.getBorderColor());
+            // 如果解析失败或数组为空，弹出提示并返回
+            MessageBoxW(g_mainWindow->getHandle(), L"未能从JSON文件加载弹幕！请检查文件路径和内容格式。", L"提示", MB_OK);
+            return;
         }
-        // todo 应用time参数，定时显示
-        Sleep(100); // 模拟处理延迟
+
+        bool hasMessaged = false;
+
+        for (const auto &item : danmakuArr)
+        {
+            if (g_overlayWindow)
+            {
+                if (countVisibleCharacters(item.getText()) <= 80)
+                {
+                    g_overlayWindow->addDanmaku(item.getText(), item.getEmSize(), item.getFillColor(), item.getBorderColor());
+                }
+                else if (!hasMessaged)
+                {
+                    // 只弹出一次提示，避免大量弹幕时多次弹窗
+                    MessageBoxW(g_mainWindow->getHandle(), L"某些弹幕内容超过80个字符，已被忽略", L"提示", MB_OK);
+                    hasMessaged = true;
+                }
+            }
+            // todo 应用time参数，定时显示
+            Sleep(100); // 模拟处理延迟
+        }
+    }
+    catch (const std::exception &ex)
+    {
+        // 读取或解析JSON文件失败，弹出错误信息
+        // 将 UTF-8 转为 UTF-16
+        int len = MultiByteToWideChar(CP_UTF8, 0, ex.what(), -1, nullptr, 0);
+        std::wstring wMsg(len, L'\0');
+        MultiByteToWideChar(CP_UTF8, 0, ex.what(), -1, &wMsg[0], len);
+        MessageBoxW(g_mainWindow->getHandle(), wMsg.c_str(), L"错误", MB_OK);
+        return;
     }
 }
